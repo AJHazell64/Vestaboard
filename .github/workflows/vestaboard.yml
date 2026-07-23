@@ -8,15 +8,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - run: npm install
+      - name: Install dependencies
+        run: npm install
 
-      - name: Send message to Vestaboard
+      - name: Send Tesla dashboard to Vestaboard
         run: npm start
         env:
           VESTABOARD_TOKEN: ${{ secrets.VESTABOARD_TOKEN }}
+          TESLA_CLIENT_ID: ${{ secrets.TESLA_CLIENT_ID }}
+          TESLA_CLIENT_SECRET: ${{ secrets.TESLA_CLIENT_SECRET }}
+          TESLA_REFRESH_TOKEN: ${{ secrets.TESLA_REFRESH_TOKEN }}
+
+      - name: Save replacement Tesla refresh token
+        if: ${{ success() && hashFiles('tesla-refresh-token.txt') != '' }}
+        run: |
+          gh secret set TESLA_REFRESH_TOKEN \
+            --repo "$GITHUB_REPOSITORY" \
+            --body "$(cat tesla-refresh-token.txt)"
+          rm -f tesla-refresh-token.txt
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
