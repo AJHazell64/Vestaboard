@@ -13,6 +13,16 @@ const time = now.toLocaleTimeString("en-GB", {
   hour12: false,
 });
 
+// Temporary values
+const day = now.toLocaleDateString("en-GB", { weekday: "short" }).toUpperCase();
+const soc = 82;
+
+const message = `${day}
+
+SOC ${soc}%
+
+${time}`;
+
 const response = await fetch("https://cloud.vestaboard.com/", {
   method: "POST",
   headers: {
@@ -20,17 +30,14 @@ const response = await fetch("https://cloud.vestaboard.com/", {
     "X-Vestaboard-Token": token,
   },
   body: JSON.stringify({
-    text: `${time}\n\nCONNECTED`,
+    text: message,
   }),
 });
 
 const responseText = await response.text();
 
-console.log("Status:", response.status);
-console.log("Response:", responseText);
-
 if (!response.ok) {
   throw new Error(responseText);
 }
 
-console.log("Vestaboard updated successfully");
+console.log("Vestaboard updated");
