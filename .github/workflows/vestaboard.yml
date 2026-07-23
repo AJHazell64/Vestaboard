@@ -1,8 +1,6 @@
 name: Vestaboard
 
 on:
-  schedule:
-    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -17,4 +15,8 @@ jobs:
           node-version: 22
 
       - run: npm install
-      - run: npm start
+
+      - name: Send message to Vestaboard
+        run: npm start
+        env:
+          VESTABOARD_TOKEN: ${{ secrets.VESTABOARD_TOKEN }}
