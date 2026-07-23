@@ -38,17 +38,16 @@ async function readJson(response, description) {
 }
 
 export async function refreshTeslaTokens() {
-  const clientId = requireEnvironmentVariable("TESLA_CLIENT_ID");
-  const clientSecret = requireEnvironmentVariable("TESLA_CLIENT_SECRET");
-  const refreshToken = requireEnvironmentVariable("TESLA_REFRESH_TOKEN");
+const clientId = requireEnvironmentVariable("TESLA_CLIENT_ID");
+const refreshToken = requireEnvironmentVariable("TESLA_REFRESH_TOKEN");
 
-  const body = new URLSearchParams({
-    grant_type: "refresh_token",
-    client_id: clientId,
-    client_secret: clientSecret,
-    refresh_token: refreshToken,
-  });
+const body = new URLSearchParams({
+  grant_type: "refresh_token",
+  client_id: clientId,
+  refresh_token: refreshToken,
+});
 
+ 
   const response = await fetch(TESLA_AUTH_URL, {
     method: "POST",
     headers: {
