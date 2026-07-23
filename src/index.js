@@ -12,14 +12,17 @@ const response = await fetch("https://cloud.vestaboard.com/", {
   },
   body: JSON.stringify({
     text: "VESTABOARD\n\nCONNECTED",
-    forced: true,
   }),
 });
 
-const result = await response.json();
+const responseText = await response.text();
+
+console.log("Vestaboard response:", response.status, responseText);
 
 if (!response.ok) {
-  throw new Error(`Vestaboard error: ${response.status} ${JSON.stringify(result)}`);
+  throw new Error(
+    `Vestaboard request failed: ${response.status} ${responseText}`
+  );
 }
 
-console.log("Message sent successfully:", result);
+console.log("Message sent successfully");
