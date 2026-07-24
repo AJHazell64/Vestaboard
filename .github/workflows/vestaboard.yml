@@ -3,7 +3,7 @@ run-name: Vestaboard - ${{ github.event_name }}
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0,15,30,45 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
       - name: Show trigger
         run: |
           echo "Triggered by: ${{ github.event_name }}"
-          echo "Time: $(date -u)"
+          echo "Time (UTC): $(date -u)"
 
       - name: Check out repository
         uses: actions/checkout@v4
