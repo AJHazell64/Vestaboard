@@ -78,32 +78,72 @@ async function teslaGet(accessToken, path) {
   return readJson(response, `Tesla request to ${path}`);
 }
 
-function getLondonDate() {
-  return new Intl.DateTimeFormat("en-CA", {
+function getLondonDateParts() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  }).format(new Date());
+  }).formatToParts(new Date());
+
+  const values = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value])
+  );
+
+  return {
+    year: values.year,
+    month: values.month,
+    day: values.day,
+  };
 }
 
-async function getTodayEnergyHistory(accessToken, siteId) {
-  const londonDate = getLondonDate();
+function getLondonUtcOffset() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    timeZoneName: "longOffset",
+  }).formatToParts(new Date());
+
+  const timeZoneName =
+    parts.find((part) => part.type === "timeZoneName")?.value || "GMT";
+
+  if (timeZoneName === "GMT") {
+    return "+00:00";
+  }
+
+  const match = timeZoneName.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
+
+  if (!match) {
+    throw new Error(
+      `Unable to determine Europe/London UTC offset: ${timeZoneName}`
+    );
+  }
+
+  const sign = match[1];
+  const hours = match[2].padStart(2, "0");
+  const minutes = (match[3] || "00").padStart(2, "0");
+
+  return `${sign}${hours}:${minutes}`;
+}
+
+function getTodayEnergyHistoryPath(siteId) {
+  const { year, month, day } = getLondonDateParts();
+  const offset = getLondonUtcOffset();
+
+  const date = `${year}-${month}-${day}`;
 
   const parameters = new URLSearchParams({
     kind: "energy",
-    start_date: `${londonDate}T00:00:00`,
-    end_date: `${londonDate}T23:59:59`,
+    start_date: `${date}T00:00:00${offset}`,
+    end_date: `${date}T23:59:59${offset}`,
     period: "day",
     time_zone: "Europe/London",
   });
 
-  return teslaGet(
-    accessToken,
-    `/api/1/energy_sites/${encodeURIComponent(
-      siteId
-    )}/calendar_history?${parameters.toString()}`
-  );
+  return `/api/1/energy_sites/${encodeURIComponent(
+    siteId
+  )}/calendar_history?${parameters.toString()}`;
 }
 
 export async function getTeslaDashboardData(accessToken) {
@@ -195,12 +235,14 @@ export async function getTeslaDashboardData(accessToken) {
 
     /*
      * Temporary diagnostic request.
-     * This prints the exact energy-history fields returned by your Powerwall.
+     * This prints the exact history fields returned by your Powerwall.
      */
     try {
-      const energyHistory = await getTodayEnergyHistory(
+      const historyPath = getTodayEnergyHistoryPath(siteId);
+
+      const energyHistory = await teslaGet(
         accessToken,
-        siteId
+        historyPath
       );
 
       console.log("TESLA ENERGY HISTORY START");
