@@ -1,0 +1,29 @@
+import { refreshTeslaTokens, getTeslaDashboardData } from "./tesla.js";
+import { getWeather } from "./weather.js";
+function getLondonDate(date = new Date()) {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(date).toUpperCase();
+}
+
+export async function createMorningDisplay() {
+  const { accessToken } = await refreshTeslaTokens();
+  const dashboard = await getTeslaDashboardData(accessToken);
+
+  const battery =
+    dashboard.vehicle?.batteryLevel != null
+      ? `${dashboard.vehicle.batteryLevel}%`
+      : "Sleeping";
+
+  const weather = await getWeather();
+
+  return `${getLondonDate()}
+
+${weather.temperature}°C
+
+TESLA
+${battery}`;
+}

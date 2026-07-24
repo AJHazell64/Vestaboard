@@ -1,0 +1,26 @@
+const LATITUDE = 52.92;
+const LONGITUDE = -1.48;
+
+export async function getWeather() {
+  const url =
+    `https://api.open-meteo.com/v1/forecast` +
+    `?latitude=${LATITUDE}` +
+    `&longitude=${LONGITUDE}` +
+    `&current=temperature_2m,weather_code` +
+    `&timezone=Europe%2FLondon`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(
+      `Weather request failed: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const data = await response.json();
+
+  return {
+    temperature: Math.round(data.current?.temperature_2m ?? 0),
+    weatherCode: data.current?.weather_code ?? null,
+  };
+}

@@ -9,8 +9,10 @@ let message;
 
 if (mode === "clock") {
   message = createClockDisplay(now);
+} else if (mode === "morning") {
+  const { createMorningDisplay } = await import("./morning.js");
+  message = await createMorningDisplay();
 } else {
   message = `MODE: ${mode}`;
 }
-
 await sendToVestaboard(message);
