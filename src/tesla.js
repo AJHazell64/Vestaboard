@@ -38,16 +38,15 @@ async function readJson(response, description) {
 }
 
 export async function refreshTeslaTokens() {
-const clientId = requireEnvironmentVariable("TESLA_CLIENT_ID");
-const refreshToken = requireEnvironmentVariable("TESLA_REFRESH_TOKEN");
+  const clientId = requireEnvironmentVariable("TESLA_CLIENT_ID");
+  const refreshToken = requireEnvironmentVariable("TESLA_REFRESH_TOKEN");
 
-const body = new URLSearchParams({
-  grant_type: "refresh_token",
-  client_id: clientId,
-  refresh_token: refreshToken,
-});
+  const body = new URLSearchParams({
+    grant_type: "refresh_token",
+    client_id: clientId,
+    refresh_token: refreshToken,
+  });
 
- 
   const response = await fetch(TESLA_AUTH_URL, {
     method: "POST",
     headers: {
@@ -79,11 +78,40 @@ async function teslaGet(accessToken, path) {
   return readJson(response, `Tesla request to ${path}`);
 }
 
+function getLondonDate() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+async function getTodayEnergyHistory(accessToken, siteId) {
+  const londonDate = getLondonDate();
+
+  const parameters = new URLSearchParams({
+    kind: "energy",
+    start_date: `${londonDate}T00:00:00`,
+    end_date: `${londonDate}T23:59:59`,
+    period: "day",
+    time_zone: "Europe/London",
+  });
+
+  return teslaGet(
+    accessToken,
+    `/api/1/energy_sites/${encodeURIComponent(
+      siteId
+    )}/calendar_history?${parameters.toString()}`
+  );
+}
+
 export async function getTeslaDashboardData(accessToken) {
   const productsData = await teslaGet(accessToken, "/api/1/products");
   const products = productsData.response ?? [];
 
   const vehicleProduct = products.find((product) => product.vin);
+
   const energyProduct = products.find(
     (product) => product.resource_type === "battery"
   );
@@ -106,9 +134,8 @@ export async function getTeslaDashboardData(accessToken) {
     };
 
     /*
-     * Option A:
      * Only request vehicle_data when the car is already online.
-     * This code never calls wake_up.
+     * This code never wakes the car.
      */
     if (vehicleProduct.state === "online") {
       try {
@@ -122,9 +149,12 @@ export async function getTeslaDashboardData(accessToken) {
         const vehicle = vehicleData.response ?? {};
         const chargeState = vehicle.charge_state ?? {};
 
-        dashboard.vehicle.batteryLevel = chargeState.battery_level ?? null;
+        dashboard.vehicle.batteryLevel =
+          chargeState.battery_level ?? null;
+
         dashboard.vehicle.chargingState =
           chargeState.charging_state ?? "Unknown";
+
         dashboard.vehicle.rangeMiles =
           chargeState.battery_range == null
             ? null
@@ -160,7 +190,24 @@ export async function getTeslaDashboardData(accessToken) {
         gridStatus: status.grid_status ?? null,
       };
     } catch (error) {
-      console.warn(`Powerwall data unavailable: ${error.message}`);
+      console.warn(`Powerwall live data unavailable: ${error.message}`);
+    }
+
+    /*
+     * Temporary diagnostic request.
+     * This prints the exact energy-history fields returned by your Powerwall.
+     */
+    try {
+      const energyHistory = await getTodayEnergyHistory(
+        accessToken,
+        siteId
+      );
+
+      console.log("TESLA ENERGY HISTORY START");
+      console.log(JSON.stringify(energyHistory, null, 2));
+      console.log("TESLA ENERGY HISTORY END");
+    } catch (error) {
+      console.warn(`Energy history unavailable: ${error.message}`);
     }
   }
 
