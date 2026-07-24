@@ -13,6 +13,6 @@ if (mode === "clock") {
   const { createMorningDisplay } = await import("./morning.js");
   message = await createMorningDisplay();
 } else {
-  message = `MODE: ${mode}`;
+  message = await createMorningDisplay();
 }
 await sendToVestaboard(message);
