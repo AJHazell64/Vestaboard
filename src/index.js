@@ -3,7 +3,7 @@ import {
   refreshTeslaTokens,
   getTeslaDashboardData,
 } from "./tesla.js";
-
+import { artwork } from "../data/artwork.js";
 function requireEnvironmentVariable(...names) {
   for (const name of names) {
     const value = process.env[name];
