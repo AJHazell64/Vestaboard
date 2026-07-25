@@ -393,19 +393,35 @@ if (quote) {
 }
 
 } else {
-  lines = [
-    formatBettyRange(bettyRangeMiles),
-    `MONSOM ${formatPercentage(
-      monsomPercentage === null
-        ? null
-        : Number(monsomPercentage)
-    )}`,
+  const dashboardGrid = createGrid();
+
+  const dashboardLines = [
     formatDailyNetEnergy(
       netGridTodayKwh === null
         ? null
         : Number(netGridTodayKwh)
     ),
+    `MONSOM ${formatPercentage(
+      monsomPercentage === null
+        ? null
+        : Number(monsomPercentage)
+    )}`,
+    formatBettyRange(bettyRangeMiles).replace(
+      "BETTY",
+      "TES"
+    ),
   ];
+
+  dashboardLines.forEach((line, index) => {
+    addContent(
+      dashboardGrid,
+      line
+    );
+  });
+
+  characterCodes = dashboardGrid.map(row =>
+    row
+  );
 }
 
 const payload = characterCodes ?? lines.join("\n");
