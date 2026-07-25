@@ -210,8 +210,7 @@ function formatDailyNetEnergy(netKwh) {
 
 async function sendToVestaboard(message) {
   const readWriteKey = requireEnvironmentVariable(
-    "VESTABOARD_READ_WRITE_KEY",
-    "VESTABOARD_API_KEY"
+    "VESTABOARD_TOKEN"
   );
 
   const apiUrl =
