@@ -250,19 +250,19 @@ function addContent(grid, content) {
     }
   }
 
-  rows.forEach((line, index) => {
-    const characters = convertTextToCharacters(line);
+rows.forEach((line, index) => {
+  const maxCharacters =
+    index === 2 ? 5 : index === 1 ? 10 : 15;
 
-    result[index].splice(
-      0,
-      characters.length,
-      ...characters
-    );
-  });
-  // Keep cell immediately left of clock as artwork
-  result[2][9] = grid[2][9];
-  return result;
-}
+  const characters = convertTextToCharacters(line)
+    .slice(0, maxCharacters);
+
+  result[index].splice(
+    0,
+    characters.length,
+    ...characters
+  );
+});
 
 
 function addTime(grid) {
