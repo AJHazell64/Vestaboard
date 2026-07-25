@@ -36,4 +36,13 @@ export const artwork = [
       "GGGGGGGGGGGGGGG",
     ]),
   },
+  {
+    name: "Sun",
+    category: "nature",
+    characters: compilePattern([
+      ".....YYYY......",
+      "....YYYYYY.....",
+      ".....YYYY......",
+    ]),
+  },
 ];
