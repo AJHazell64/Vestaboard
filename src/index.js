@@ -1,165 +1,189 @@
-import { writeFileSync } from "node:fs";
-import {
-  refreshTeslaTokens,
-  getTeslaDashboardData,
-} from "./tesla.js";
+import * as teslaModule from "./tesla.js";
 
-const vestaboardToken = process.env.VESTABOARD_TOKEN;
+function getRequiredEnvironmentVariable(...names) {
+  for (const name of names) {
+    const value = process.env[name];
 
-if (!vestaboardToken) {
-  throw new Error("VESTABOARD_TOKEN is missing");
-}
-
-function formatPower(watts) {
-  if (watts == null || Number.isNaN(Number(watts))) {
-    return "--";
+    if (value) {
+      return value;
+    }
   }
 
-  return `${Math.abs(Number(watts) / 1000).toFixed(1)}KW`;
+  throw new Error(
+    `Missing required environment variable. Expected one of: ${names.join(", ")}`
+  );
 }
 
-function formatEnergy(kwh) {
-  if (kwh == null || Number.isNaN(Number(kwh))) {
-    return "--";
+function firstValidNumber(...values) {
+  for (const value of values) {
+    const number = Number(value);
+
+    if (Number.isFinite(number)) {
+      return number;
+    }
   }
 
-  return `${Math.abs(Number(kwh)).toFixed(1)} KWH`;
+  return null;
 }
 
-function fitLine(text) {
-  return String(text).toUpperCase().slice(0, 22);
+function findTeslaFunction() {
+  const teslaFunction =
+    teslaModule.getTeslaData ??
+    teslaModule.getTeslaAndPowerwallData ??
+    teslaModule.fetchTeslaData ??
+    teslaModule.default;
+
+  if (typeof teslaFunction !== "function") {
+    throw new Error(
+      "Could not find the Tesla data function exported by tesla.js."
+    );
+  }
+
+  return teslaFunction;
 }
 
-const now = new Date();
+function formatPercentage(value) {
+  if (value === null) {
+    return "--%";
+  }
 
-const day = now
-  .toLocaleDateString("en-GB", {
-    timeZone: "Europe/London",
-    weekday: "short",
-  })
-  .toUpperCase();
+  return `${Math.round(value)}%`;
+}
 
-const time = now.toLocaleTimeString("en-GB", {
-  timeZone: "Europe/London",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-});
+function getBettyBatteryPercentage(data) {
+  return firstValidNumber(
+    data.lastRecordedVehicleBatteryPercentage,
+    data.lastKnownVehicleBatteryPercentage,
+    data.vehicleBatteryPercentage,
+    data.vehicleBatteryLevel,
+    data.carBatteryPercentage,
+    data.carBatteryLevel,
+    data.teslaBatteryPercentage,
+    data.teslaBatteryLevel,
+    data.batteryLevel,
+    data.vehicle?.batteryPercentage,
+    data.vehicle?.batteryLevel,
+    data.vehicle?.chargeState?.battery_level,
+    data.vehicle?.charge_state?.battery_level
+  );
+}
 
-console.log("Refreshing Tesla access token");
+function getPowerwallPercentage(data) {
+  return firstValidNumber(
+    data.powerwallPercentage,
+    data.powerwallBatteryPercentage,
+    data.powerwallBatteryLevel,
+    data.energySiteBatteryPercentage,
+    data.energy?.percentageCharged,
+    data.energy?.percentage_charged,
+    data.liveStatus?.percentageCharged,
+    data.liveStatus?.percentage_charged
+  );
+}
 
-const tokens = await refreshTeslaTokens();
+function getNetGridToday(data) {
+  const existingNetValue = firstValidNumber(data.netGridTodayKwh);
 
-/*
- * Tesla may return a replacement refresh token.
- * Save it temporarily so the GitHub workflow can update
- * the TESLA_REFRESH_TOKEN repository secret.
- */
-if (tokens.refreshToken) {
-  writeFileSync("tesla-refresh-token.txt", tokens.refreshToken, {
-    encoding: "utf8",
-    mode: 0o600,
+  if (existingNetValue !== null) {
+    return existingNetValue;
+  }
+
+  const imported = firstValidNumber(data.gridImportedTodayKwh) ?? 0;
+  const exported = firstValidNumber(data.gridExportedTodayKwh) ?? 0;
+
+  /*
+   * Negative means net import.
+   * Positive means net export.
+   */
+  return exported - imported;
+}
+
+function formatDayEnergy(netGridTodayKwh) {
+  const roundedValue = Math.abs(netGridTodayKwh).toFixed(1);
+
+  if (netGridTodayKwh > 0) {
+    return `EXPORT ${roundedValue}KWH`;
+  }
+
+  return `IMPORT ${roundedValue}KWH`;
+}
+
+async function sendToVestaboard(message) {
+  const readWriteKey = getRequiredEnvironmentVariable(
+    "VESTABOARD_READ_WRITE_KEY",
+    "VESTABOARD_API_KEY"
+  );
+
+  const apiUrl =
+    process.env.VESTABOARD_API_URL ?? "https://rw.vestaboard.com/";
+
+  console.log("Sending dashboard to Vestaboard");
+
+  const response = await fetch(apiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Vestaboard-Read-Write-Key": readWriteKey,
+    },
+    body: JSON.stringify({
+      text: message,
+    }),
   });
 
-  console.log("Replacement Tesla refresh token saved securely");
-}
+  const responseText = await response.text();
 
-console.log("Retrieving Tesla and Powerwall data");
-
-const dashboard = await getTeslaDashboardData(tokens.accessToken);
-
-const lines = [];
-
-if (!dashboard.vehicle) {
-  lines.push("TESLA UNAVAILABLE");
-} else if (dashboard.vehicle.sleeping) {
-  lines.push(`${dashboard.vehicle.name} SLEEPING`);
-} else {
-  const battery =
-    dashboard.vehicle.batteryLevel == null
-      ? "--"
-      : `${dashboard.vehicle.batteryLevel}%`;
-
-  lines.push(`${dashboard.vehicle.name} ${battery}`);
-
-  if (dashboard.vehicle.chargingState === "Charging") {
-    lines.push("CAR CHARGING");
-  } else if (dashboard.vehicle.rangeMiles != null) {
-    lines.push(`RANGE ${dashboard.vehicle.rangeMiles} MI`);
-  }
-}
-
-if (dashboard.energy) {
-  const powerwall =
-    dashboard.energy.batteryPercent == null
-      ? "--"
-      : `${dashboard.energy.batteryPercent}%`;
-
-  lines.push(`POWERWALL ${powerwall}`);
-  lines.push(`HOME ${formatPower(dashboard.energy.homePowerWatts)}`);
-  lines.push(`SOLAR ${formatPower(dashboard.energy.solarPowerWatts)}`);
-
-  const net = dashboard.energy.netGridTodayKwh;
-
-  if (net == null || Number.isNaN(Number(net))) {
-    lines.push("GRID TODAY --");
-  } else if (net >= 0) {
-    lines.push(`EXPORT ${formatEnergy(net)}`);
-  } else {
-    lines.push(`IMPORT ${formatEnergy(net)}`);
-  }
-} else {
-  lines.push("POWERWALL OFFLINE");
-}
-
-lines.push(`${day} ${time}`);
-
-/*
- * Vestaboard has six rows.
- * Keep the most useful six lines and limit each to 22 characters.
- */
-const message = lines
-  .slice(0, 6)
-  .map(fitLine)
-  .join("\n");
-
-console.log(message);
-
-console.log("Sending dashboard to Vestaboard");
-
-const response = await fetch("https://cloud.vestaboard.com/", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "X-Vestaboard-Token": vestaboardToken,
-  },
-  body: JSON.stringify({
-    text: message,
-  }),
-});
-
-const responseText = await response.text();
-
-/*
- * Vestaboard returns FingerprintMatch when the message
- * is identical to the one already displayed.
- * Treat this as success.
- */
-if (!response.ok) {
-  let fingerprintMatch = false;
+  let responseData = null;
 
   try {
-    const body = JSON.parse(responseText);
-    fingerprintMatch = body.type === "FingerprintMatch";
+    responseData = JSON.parse(responseText);
   } catch {
-    // Ignore parse errors
+    // The response was not JSON.
   }
 
-  if (!fingerprintMatch) {
+  const isDuplicateMessage =
+    responseData?.type === "FingerprintMatch" ||
+    responseText.includes("FingerprintMatch") ||
+    responseText.includes("currently displayed");
+
+  if (!response.ok && !isDuplicateMessage) {
     throw new Error(`Vestaboard update failed: ${responseText}`);
   }
 
-  console.log("Vestaboard already displaying latest message.");
-} else {
+  if (isDuplicateMessage) {
+    console.log("Vestaboard already displays this message");
+    return;
+  }
+
   console.log("Vestaboard updated successfully");
 }
+
+async function main() {
+  const getTeslaData = findTeslaFunction();
+
+  console.log("Retrieving Tesla and Powerwall data");
+
+  const data = await getTeslaData();
+
+  const bettyBatteryPercentage = getBettyBatteryPercentage(data);
+  const powerwallPercentage = getPowerwallPercentage(data);
+  const netGridTodayKwh = getNetGridToday(data);
+
+  const lines = [
+    `BETTY ${formatPercentage(bettyBatteryPercentage)}`,
+    `MONSOM ${formatPercentage(powerwallPercentage)}`,
+    formatDayEnergy(netGridTodayKwh),
+  ];
+
+  const dashboard = lines.join("\n");
+
+  console.log("");
+  console.log(dashboard);
+  console.log("");
+
+  await sendToVestaboard(dashboard);
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
