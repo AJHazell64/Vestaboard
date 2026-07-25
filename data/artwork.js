@@ -1,5 +1,11 @@
-characters: [
-  [0,0,0,0,0,65,65,65,0,0,0,0,0,0,0],
-  [67,67,67,65,65,65,65,65,65,67,67,67,0,0,0],
-  [66,66,66,66,66,66,66,66,66,66,66,66,66,66,66],
-]
+export const artwork = [
+  {
+    name: "Sunrise",
+    category: "nature",
+    lines: [
+      "      YYY      ",
+      "    OYYYYYO    ",
+      "GGGGGGGGGGGGGGG",
+    ],
+  },
+];
