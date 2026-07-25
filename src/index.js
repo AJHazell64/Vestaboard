@@ -384,11 +384,21 @@ if (displayMode === "night") {
     "",
     "",
   ];
+} else if (displayMode === "day_quote") {
+  lines = [
+    "DO IT NOW",
+    "",
+    "",
+  ];
+} else if (displayMode === "day_artwork") {
+  lines = [
+    "ARTWORK MODE",
+    "",
+    "",
+  ];
 } else {
   lines = [
-    formatBettyRange(
-      bettyRangeMiles
-    ),
+    formatBettyRange(bettyRangeMiles),
     `MONSOM ${formatPercentage(
       monsomPercentage === null
         ? null
