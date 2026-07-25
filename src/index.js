@@ -377,6 +377,7 @@ console.log(`Display mode: ${displayMode}`);
     dashboard.energy?.netGridTodayKwh;
 
 let lines;
+  let characterCodes;
 const selectedArtwork =
   artwork[Math.floor(Math.random() * artwork.length)];
 if (displayMode === "night") {
@@ -392,7 +393,7 @@ if (displayMode === "night") {
     "",
   ];
 } else if (displayMode === "day_artwork") {
-  lines = selectedArtwork.lines;
+characterCodes = selectedArtwork.characters;
 } else {
   lines = [
     formatBettyRange(bettyRangeMiles),
@@ -409,13 +410,13 @@ if (displayMode === "night") {
   ];
 }
 
-  const message = lines.join("\n");
+const payload = characterCodes ?? lines.join("\n");
 
-  console.log("");
-  console.log(message);
-  console.log("");
+console.log("");
+console.log(payload);
+console.log("");
 
-  await sendToVestaboard(message);
+await sendToVestaboard(payload);
 }
 
 main().catch((error) => {
