@@ -200,16 +200,17 @@ function getCurrentTimeCharacters() {
 }
 
 function isFirstFifteenMinutes() {
-  const values = getLondonTimeParts();
-
- return true;
+  return true;
 }
 
 function addQuote(grid) {
   const result = grid.map((row) => [...row]);
 
   QUOTE_LINES.forEach((line, row) => {
-    const characters = [...line.toUpperCase()];
+    const characters = [...line.toUpperCase()].map(
+      (character) => character === " " ? "BLANK" : character
+    );
+
     const startColumn = Math.floor(
       (15 - characters.length) / 2
     );
