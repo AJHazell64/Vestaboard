@@ -500,11 +500,11 @@ if (displayMode === "night") {
   ) {
     characterCodes = JSON.parse(savedNightArtwork);
   } else {
-const nightArtwork = compilePattern(
+const nightArtwork = addTime(
   generateNightArtwork()
 );
 
-characterCodes = addTime(nightArtwork);
+characterCodes = compilePattern(nightArtwork);
   }
 }
 
