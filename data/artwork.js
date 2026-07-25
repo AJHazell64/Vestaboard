@@ -246,18 +246,14 @@ function addContent(grid, content) {
 function addTime(grid) {
   const result = grid.map((row) => [...row]);
 
-  // Border above the clock
-  result[1].splice(
-    9,
-    6,
-    "WHITE",
-    "WHITE",
-    "WHITE",
-    "WHITE",
-    "WHITE",
-    "WHITE"
+  result[2].splice(
+    10,
+    5,
+    ...getCurrentTimeCharacters()
   );
 
+  return result;
+}
   // Border to the left of the clock
   result[2][9] = "WHITE";
 
