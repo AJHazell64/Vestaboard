@@ -2,10 +2,10 @@ export const artwork = [
   {
     name: "Sunrise",
     category: "nature",
-    lines: [
-      "      YYY      ",
-      "    OYYYYYO    ",
-      "GGGGGGGGGGGGGGG",
+    characters: [
+      [0, 0, 0, 0, 0, 65, 65, 65, 65, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 65, 65, 65, 65, 65, 65, 65, 65, 0, 0, 0, 0],
+      [66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66],
     ],
   },
 ];
