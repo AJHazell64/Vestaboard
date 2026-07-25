@@ -141,6 +141,53 @@ function getSavedBettyRangeMiles() {
 
   return null;
 }
+function getSavedNightArtwork() {
+  const storedValue = runGitHubCommand([
+    "variable",
+    "get",
+    "LAST_NIGHT_ARTWORK",
+  ]);
+
+  return storedValue || null;
+}
+
+function saveNightArtwork(artworkData) {
+  const token = getGitHubToken();
+  const repository = process.env.GITHUB_REPOSITORY;
+
+  if (!token || !repository) {
+    return;
+  }
+
+  try {
+    execFileSync(
+      "gh",
+      [
+        "variable",
+        "set",
+        "LAST_NIGHT_ARTWORK",
+        "--body",
+        artworkData,
+        "--repo",
+        repository,
+      ],
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          GH_TOKEN: token,
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    );
+
+    console.log("Saved night artwork");
+  } catch (error) {
+    console.warn(
+      `Unable to save night artwork: ${error.message}`
+    );
+  }
+}
 
 function saveBettyRangeMiles(rangeMiles) {
   if (
