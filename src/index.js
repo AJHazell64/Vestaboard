@@ -391,7 +391,6 @@ if (displayMode === "night") {
   if (quote) {
     console.log("Using quote:", quote);
   }
-}
 } else {
   lines = [
     formatBettyRange(bettyRangeMiles),
