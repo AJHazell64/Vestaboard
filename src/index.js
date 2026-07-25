@@ -4,6 +4,7 @@ import {
   getTeslaDashboardData,
 } from "./tesla.js";
 import { artwork } from "../data/artwork.js";
+import { getQuote } from "../data/quoteProvider.js";
 function requireEnvironmentVariable(...names) {
   for (const name of names) {
     const value = process.env[name];
@@ -384,6 +385,13 @@ if (displayMode === "night") {
   ];
 } else if (displayMode === "day_artwork") {
   characterCodes = selectedArtwork.characters;
+
+  const quote = await getQuote();
+
+  if (quote) {
+    console.log("Using quote:", quote);
+  }
+}
 } else {
   lines = [
     formatBettyRange(bettyRangeMiles),
