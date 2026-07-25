@@ -385,19 +385,17 @@ if (displayMode === "night") {
   ];
 } else if (displayMode === "day_artwork") {
   characterCodes = selectedArtwork.characters;
+  const quoteText = await getQuote();
 
-if (quote) {
-  console.log("Using quote:", quote);
+  if (quoteText) {
+    console.log("Using quote:", quoteText);
 
-  const quoteGrid = addContent(createGrid(), quote);
-  characterCodes = compilePattern(quoteGrid);
-}
-
-const quote = await getQuote();
-
-if (quote) {
-  console.log("Using quote:", quote);
-}
+    const quoteGrid = addContent(createGrid(), quoteText);
+    characterCodes = compilePattern(quoteGrid);
+  } else {
+    console.log("Quote rejected - using artwork");
+    characterCodes = selectedArtwork.characters;
+  }
 
 } else {
   lines = [
