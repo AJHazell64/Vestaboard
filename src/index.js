@@ -151,6 +151,16 @@ function getSavedNightArtwork() {
   return storedValue || null;
 }
 
+function getSavedNightDate() {
+  const storedValue = runGitHubCommand([
+    "variable",
+    "get",
+    "LAST_NIGHT_DATE",
+  ]);
+
+  return storedValue || null;
+}
+
 function saveNightArtwork(artworkData) {
   const token = getGitHubToken();
   const repository = process.env.GITHUB_REPOSITORY;
@@ -185,6 +195,44 @@ function saveNightArtwork(artworkData) {
   } catch (error) {
     console.warn(
       `Unable to save night artwork: ${error.message}`
+    );
+  }
+}
+
+function saveNightDate(date) {
+  const token = getGitHubToken();
+  const repository = process.env.GITHUB_REPOSITORY;
+
+  if (!token || !repository) {
+    return;
+  }
+
+  try {
+    execFileSync(
+      "gh",
+      [
+        "variable",
+        "set",
+        "LAST_NIGHT_DATE",
+        "--body",
+        date,
+        "--repo",
+        repository,
+      ],
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          GH_TOKEN: token,
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    );
+
+    console.log("Saved night date");
+  } catch (error) {
+    console.warn(
+      `Unable to save night date: ${error.message}`
     );
   }
 }
@@ -433,19 +481,36 @@ const selectedArtwork =
   artwork[Math.floor(Math.random() * artwork.length)];
 if (displayMode === "night") {
   const savedNightArtwork = getSavedNightArtwork();
+  const savedNightDate = getSavedNightDate();
 
-  if (savedNightArtwork) {
+  const today = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  })
+    .format(new Date())
+    .split("/")
+    .reverse()
+    .join("-");
+
+  if (
+    savedNightArtwork &&
+    savedNightDate === today
+  ) {
     characterCodes = JSON.parse(savedNightArtwork);
   } else {
-    const nightArtwork = compilePattern(
-      addTime(generateNightArtwork())
-    );
+const nightArtwork = compilePattern(
+  generateNightArtwork()
+);
 
     saveNightArtwork(
       JSON.stringify(nightArtwork)
     );
 
-    characterCodes = nightArtwork;
+    saveNightDate(today);
+
+characterCodes = addTime(nightArtwork);
   }
 }
 
