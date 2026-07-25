@@ -18,14 +18,12 @@ function formatPower(watts) {
   return `${Math.abs(Number(watts) / 1000).toFixed(1)}KW`;
 }
 
-function formatEnergy(kilowattHours) {
-  const value = Number(kilowattHours);
-
-  if (!Number.isFinite(value)) {
+function formatEnergy(kwh) {
+  if (kwh == null || Number.isNaN(Number(kwh))) {
     return "--";
   }
 
-  return `${Math.abs(value).toFixed(1)} KWH`;
+  return `${Math.abs(Number(kwh)).toFixed(1)} KWH`;
 }
 
 function fitLine(text) {
@@ -101,14 +99,14 @@ if (dashboard.energy) {
   lines.push(`HOME ${formatPower(dashboard.energy.homePowerWatts)}`);
   lines.push(`SOLAR ${formatPower(dashboard.energy.solarPowerWatts)}`);
 
-  const netGridToday = Number(dashboard.energy.netGridTodayKwh);
+  const net = dashboard.energy.netGridTodayKwh;
 
-  if (Number.isFinite(netGridToday)) {
-    const direction = netGridToday >= 0 ? "EXPORT" : "IMPORT";
-
-    lines.push(`${direction} ${formatEnergy(netGridToday)}`);
-  } else {
+  if (net == null || Number.isNaN(Number(net))) {
     lines.push("GRID TODAY --");
+  } else if (net >= 0) {
+    lines.push(`EXPORT ${formatEnergy(net)}`);
+  } else {
+    lines.push(`IMPORT ${formatEnergy(net)}`);
   }
 } else {
   lines.push("POWERWALL OFFLINE");
@@ -125,6 +123,8 @@ const message = lines
   .map(fitLine)
   .join("\n");
 
+console.log(message);
+
 console.log("Sending dashboard to Vestaboard");
 
 const response = await fetch("https://cloud.vestaboard.com/", {
@@ -140,8 +140,26 @@ const response = await fetch("https://cloud.vestaboard.com/", {
 
 const responseText = await response.text();
 
+/*
+ * Vestaboard returns FingerprintMatch when the message
+ * is identical to the one already displayed.
+ * Treat this as success.
+ */
 if (!response.ok) {
-  throw new Error(`Vestaboard update failed: ${responseText}`);
-}
+  let fingerprintMatch = false;
 
-console.log("Vestaboard updated successfully");
+  try {
+    const body = JSON.parse(responseText);
+    fingerprintMatch = body.type === "FingerprintMatch";
+  } catch {
+    // Ignore parse errors
+  }
+
+  if (!fingerprintMatch) {
+    throw new Error(`Vestaboard update failed: ${responseText}`);
+  }
+
+  console.log("Vestaboard already displaying latest message.");
+} else {
+  console.log("Vestaboard updated successfully");
+}
