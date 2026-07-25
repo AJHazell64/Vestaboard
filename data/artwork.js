@@ -11,9 +11,22 @@ const COLOURS = [
   "BLACK",
 ];
 
-const QUOTE_LINES = [
-  "DO IT",
-  "NOW",
+const CONTENT = [
+  ["DO IT", "NOW"],
+  ["KEEP MOVING", "FORWARD"],
+  ["SMALL STEPS", "COUNT"],
+  ["YOU HAVE GOT", "THIS"],
+  ["STAY CURIOUS", "ALWAYS"],
+  ["MAKE IT", "HAPPEN"],
+  ["BE KIND", "TODAY"],
+  ["REST IS", "PRODUCTIVE"],
+  ["YOU ARE", "DOING GREAT"],
+  ["BANANAS ARE", "BERRIES"],
+  ["OCTOPUSES", "HAVE 3 HEARTS"],
+  ["SHARKS ARE", "OLDER THAN TREES"],
+  ["HONEY NEVER", "SPOILS"],
+  ["I NEED SPACE", "SAID THE STAR"],
+  ["A GROUP OF", "CROWS IS MURDER"],
 ];
 
 function getLondonTimeParts() {
@@ -200,23 +213,25 @@ function getCurrentTimeCharacters() {
 }
 
 function isFirstFifteenMinutes() {
-  return true;
+  const values = getLondonTimeParts();
+
+  return Number(values.minute) < 15;
 }
 
-function addQuote(grid) {
+function convertTextToCharacters(text) {
+  return [...text.toUpperCase()].map(
+    (character) => character === " " ? "BLANK" : character
+  );
+}
+
+function addContent(grid, content) {
   const result = grid.map((row) => [...row]);
 
-  QUOTE_LINES.forEach((line, row) => {
-    const characters = [...line.toUpperCase()].map(
-      (character) => character === " " ? "BLANK" : character
-    );
-
-    const startColumn = Math.floor(
-      (15 - characters.length) / 2
-    );
+  content.forEach((line, row) => {
+    const characters = convertTextToCharacters(line);
 
     result[row].splice(
-      startColumn,
+      0,
       characters.length,
       ...characters
     );
@@ -247,13 +262,14 @@ function generateArtwork() {
   ];
 
   const selectedGenerator = chooseRandom(generators);
+  const selectedContent = chooseRandom(CONTENT);
   const background = selectedGenerator(palette);
 
-  const artworkWithQuote = isFirstFifteenMinutes()
-    ? addQuote(background)
+  const artworkWithContent = isFirstFifteenMinutes()
+    ? addContent(background, selectedContent)
     : background;
 
-  return addTime(artworkWithQuote);
+  return addTime(artworkWithContent);
 }
 
 export const artwork = [
