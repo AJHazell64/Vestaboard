@@ -11,16 +11,62 @@ const COLOURS = [
   "BLACK",
 ];
 
+function createHourlySeed() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
+
+  const values = Object.fromEntries(
+    parts.map(({ type, value }) => [type, value])
+  );
+
+  return Number(
+    `${values.year}${values.month}${values.day}${values.hour}`
+  );
+}
+
+function createSeededRandom(seed) {
+  let state = seed >>> 0;
+
+  return function random() {
+    state += 0x6d2b79f5;
+
+    let result = state;
+    result = Math.imul(result ^ (result >>> 15), result | 1);
+    result ^= result + Math.imul(result ^ (result >>> 7), result | 61);
+
+    return ((result ^ (result >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const random = createSeededRandom(createHourlySeed());
+
 function chooseRandom(items) {
-  return items[Math.floor(Math.random() * items.length)];
+  return items[Math.floor(random() * items.length)];
 }
 
 function shuffle(items) {
-  return [...items].sort(() => Math.random() - 0.5);
+  const result = [...items];
+
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(random() * (index + 1));
+
+    [result[index], result[randomIndex]] = [
+      result[randomIndex],
+      result[index],
+    ];
+  }
+
+  return result;
 }
 
 function choosePalette() {
-  const paletteSize = 2 + Math.floor(Math.random() * 3);
+  const paletteSize = 2 + Math.floor(random() * 3);
 
   return shuffle(COLOURS).slice(0, paletteSize);
 }
@@ -56,7 +102,7 @@ function generateHorizontalBands(palette) {
 
 function generateVerticalBands(palette) {
   const grid = createGrid();
-  const bandWidth = 1 + Math.floor(Math.random() * 3);
+  const bandWidth = 1 + Math.floor(random() * 3);
 
   for (let row = 0; row < 3; row += 1) {
     for (let column = 0; column < 15; column += 1) {
@@ -144,9 +190,8 @@ function getCurrentTimeCharacters() {
 
 function addTime(grid) {
   const result = grid.map((row) => [...row]);
-  const timeCharacters = getCurrentTimeCharacters();
 
-  result[2].splice(10, 5, ...timeCharacters);
+  result[2].splice(10, 5, ...getCurrentTimeCharacters());
 
   return result;
 }
@@ -165,14 +210,14 @@ function generateArtwork() {
   ];
 
   const selectedGenerator = chooseRandom(generators);
-  const grid = selectedGenerator(palette);
+  const background = selectedGenerator(palette);
 
-  return addTime(grid);
+  return addTime(background);
 }
 
 export const artwork = [
   {
-    name: "Generative Colour Grid",
+    name: "Hourly Generative Colour Grid",
     category: "generated",
     characters: compilePattern(generateArtwork()),
   },
