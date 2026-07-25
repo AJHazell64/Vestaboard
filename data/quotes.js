@@ -1,3 +1,4 @@
+let lastQuote = null;
 export const FALLBACK_QUOTES = [
   "THIS QUOTE IS DEFINITELY TOO LONG TO FIT",
   "DO IT NOW",
@@ -61,10 +62,16 @@ export function canFitQuote(text) {
 
 export function getFallbackQuote() {
   const validQuotes = FALLBACK_QUOTES.filter((quote) =>
-    canFitQuote(quote)
+    canFitQuote(quote) &&
+    quote !== lastQuote
   );
 
-  return validQuotes[
-    Math.floor(Math.random() * validQuotes.length)
-  ];
+  const quote =
+    validQuotes[
+      Math.floor(Math.random() * validQuotes.length)
+    ];
+
+  lastQuote = quote;
+
+  return quote;
 }
