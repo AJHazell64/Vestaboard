@@ -274,7 +274,7 @@ function generateArtwork() {
   ];
 
   const selectedGenerator = chooseRandom(generators);
-  const selectedContent = "SHARKS ARE OLDER THAN TREES";
+  const selectedContent = chooseRandom(FALLBACK_QUOTES);
   const background = selectedGenerator(palette);
 
   const artworkWithContent = isFirstFifteenMinutes()
