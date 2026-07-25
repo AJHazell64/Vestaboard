@@ -7,12 +7,12 @@ import {
 export async function getQuote() {
   try {
     const response = await fetch(
-      "https://api.quotable.io/random"
+      "https://zenquotes.io/api/random"
     );
 
     const data = await response.json();
 
-    const quote = cleanQuote(data.content);
+    const quote = cleanQuote(data[0].q);
 
     if (canFitQuote(quote)) {
       return quote;
