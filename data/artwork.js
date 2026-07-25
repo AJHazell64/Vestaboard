@@ -213,7 +213,9 @@ function getCurrentTimeCharacters() {
 }
 
 function isFirstFifteenMinutes() {
-  return true;
+  const values = getLondonTimeParts();
+
+  return Number(values.minute) < 15;
 }
 
 function convertTextToCharacters(text) {
