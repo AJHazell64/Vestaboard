@@ -8,6 +8,7 @@ import {
   addContent,
   createGrid,
   addTime,
+  generateNightArtwork,
 } from "../data/artwork.js";
 import { compilePattern } from "./artworkCompiler.js";
 import { getQuote } from "../data/quoteProvider.js";
@@ -384,11 +385,9 @@ let lines;
 const selectedArtwork =
   artwork[Math.floor(Math.random() * artwork.length)];
 if (displayMode === "night") {
-  lines = [
-    "NIGHT MODE",
-    "",
-    "",
-  ];
+  characterCodes = compilePattern(
+    addTime(generateNightArtwork())
+  );
 } else if (displayMode === "day_artwork") {
   characterCodes = selectedArtwork.characters;
 
