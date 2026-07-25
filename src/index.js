@@ -237,9 +237,11 @@ async function sendToVestaboard(message) {
       "X-Vestaboard-Read-Write-Key":
         readWriteKey,
     },
-    body: JSON.stringify({
-      text: message,
-    }),
+  body: JSON.stringify(
+  Array.isArray(message)
+    ? { characters: message }
+    : { text: message }
+),
   });
 
   const responseText =
