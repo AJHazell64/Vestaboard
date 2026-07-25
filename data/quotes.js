@@ -1,4 +1,3 @@
-let lastQuote = null;
 export const FALLBACK_QUOTES = [
   "THIS QUOTE IS DEFINITELY TOO LONG TO FIT",
   "DO IT NOW",
