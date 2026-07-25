@@ -17,9 +17,21 @@ export async function getQuote() {
     if (canFitQuote(quote)) {
       return quote;
     }
+
+    console.log("Live quote rejected - too long");
+
   } catch (error) {
     console.log("Quote API unavailable");
   }
 
-  return getFallbackQuote();
+  // Keep trying fallback quotes until one fits
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const fallback = getFallbackQuote();
+
+    if (canFitQuote(fallback)) {
+      return fallback;
+    }
+  }
+
+  return "KEEP MOVING FORWARD";
 }
