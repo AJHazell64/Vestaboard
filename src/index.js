@@ -451,8 +451,7 @@ console.log(`Display mode: ${displayMode}`);
 
 let lines;
   let characterCodes;
-const selectedArtwork =
-  artwork[Math.floor(Math.random() * artwork.length)];
+
 if (displayMode === "night") {
   const savedNightArtwork = getSavedNightArtwork();
   const savedNightDate = getSavedNightDate();
@@ -480,6 +479,9 @@ characterCodes = compilePattern(nightArtwork);
 }
 
 else if (displayMode === "day_artwork") {
+
+const selectedArtwork =
+  artwork[Math.floor(Math.random() * artwork.length)];
   characterCodes = selectedArtwork.characters;
 
 const quote = await getQuote();
