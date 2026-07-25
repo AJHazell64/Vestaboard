@@ -28,22 +28,26 @@ export function canFitQuote(text) {
   const words = cleanQuote(text).split(" ");
 
   const rows = ["", "", ""];
+  const limits = [15, 9, 5];
+
   let row = 0;
 
   for (const word of words) {
-    const limit = row === 0 ? 15 : 9;
+    if (row > 2) {
+      return false;
+    }
 
     const testLine =
       rows[row] === ""
         ? word
         : `${rows[row]} ${word}`;
 
-    if (testLine.length <= limit) {
+    if (testLine.length <= limits[row]) {
       rows[row] = testLine;
     } else {
       row += 1;
 
-      if (row > 2) {
+      if (row > 2 || word.length > limits[row]) {
         return false;
       }
 
