@@ -185,6 +185,28 @@ function generateConfetti(palette) {
   );
 }
 
+function generateNightArtwork() {
+  const grid = createGrid("BLACK");
+
+  const palette = [
+    "BLACK",
+    "BLACK",
+    "BLACK",
+    "BLUE",
+    "VIOLET",
+    "WHITE",
+  ];
+
+  for (let row = 0; row < 3; row += 1) {
+    for (let column = 0; column < 15; column += 1) {
+      grid[row][column] =
+        palette[Math.floor(Math.random() * palette.length)];
+    }
+  }
+
+  return grid;
+}
+
 function getCurrentTimeCharacters() {
   const values = getLondonTimeParts();
 
@@ -289,6 +311,7 @@ export {
   createGrid,
   getCurrentTimeCharacters,
   addTime,
+  generateNightArtwork,
 };
 
 export const artwork = [
