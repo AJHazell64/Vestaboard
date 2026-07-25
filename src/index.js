@@ -3,7 +3,7 @@ import {
   refreshTeslaTokens,
   getTeslaDashboardData,
 } from "./tesla.js";
-import { artwork } from "../data/artwork.js";
+import { artwork, addContent, createGrid } from "../data/artwork.js";
 import { getQuote } from "../data/quoteProvider.js";
 function requireEnvironmentVariable(...names) {
   for (const name of names) {
@@ -385,6 +385,15 @@ if (displayMode === "night") {
   ];
 } else if (displayMode === "day_artwork") {
   characterCodes = selectedArtwork.characters;
+
+const quote = await getQuote();
+
+if (quote) {
+  console.log("Using quote:", quote);
+
+  const quoteGrid = addContent(createGrid(), quote);
+  characterCodes = compilePattern(quoteGrid);
+}
 
 const quote = await getQuote();
 
