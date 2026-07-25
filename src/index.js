@@ -364,7 +364,7 @@ console.log(`Display mode: ${displayMode}`);
   }
 
   const monsomPercentage =
-    dashboard.energy?.batteryPercent;F
+    dashboard.energy?.batteryPercent;
 
   const netGridTodayKwh =
     dashboard.energy?.netGridTodayKwh;
