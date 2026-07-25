@@ -254,10 +254,9 @@ function addTime(grid) {
 
   return result;
 }
-  // Border to the left of the clock
-  result[2][9] = "WHITE";
+function addTime(grid) {
+  const result = grid.map((row) => [...row]);
 
-  // Clock
   result[2].splice(
     10,
     5,
@@ -266,6 +265,8 @@ function addTime(grid) {
 
   return result;
 }
+
+function generateArtwork() {
 
 function generateArtwork() {
   const palette = choosePalette();
