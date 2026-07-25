@@ -390,8 +390,7 @@ if (displayMode === "night") {
   if (quoteText) {
     console.log("Using quote:", quoteText);
 
-    const quoteGrid = addContent(createGrid(), quoteText);
-    characterCodes = compilePattern(quoteGrid);
+    characterCodes = addContent(createGrid(), quoteText);
   } else {
     console.log("Quote rejected - using artwork");
     characterCodes = selectedArtwork.characters;
