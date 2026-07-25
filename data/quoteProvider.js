@@ -5,33 +5,35 @@ import {
 } from "./quotes.js";
 
 export async function getQuote() {
-  try {
-    const response = await fetch(
-      "https://zenquotes.io/api/random"
-    );
 
-    const data = await response.json();
+  // Try live quotes 3 times
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await fetch(
+        "https://zenquotes.io/api/random"
+      );
 
-    const quote = cleanQuote(data[0].q);
+      const data = await response.json();
 
-    if (canFitQuote(quote)) {
-      return quote;
+      const quote = cleanQuote(data[0].q);
+
+      if (canFitQuote(quote)) {
+        return quote;
+      }
+
+      console.log(
+        `Live quote rejected - too long (attempt ${attempt + 1})`
+      );
+
+    } catch (error) {
+      console.log(
+        `Live quote unavailable (attempt ${attempt + 1})`
+      );
     }
-
-    console.log("Live quote rejected - too long");
-
-  } catch (error) {
-    console.log("Quote API unavailable");
   }
 
-  // Keep trying fallback quotes until one fits
-  for (let attempt = 0; attempt < 20; attempt++) {
-    const fallback = getFallbackQuote();
+  // Only use fallback if all live attempts fail
+  console.log("Using fallback quote");
 
-    if (canFitQuote(fallback)) {
-      return fallback;
-    }
-  }
-
-  return "KEEP MOVING FORWARD";
+  return getFallbackQuote();
 }
