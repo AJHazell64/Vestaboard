@@ -432,10 +432,24 @@ let lines;
 const selectedArtwork =
   artwork[Math.floor(Math.random() * artwork.length)];
 if (displayMode === "night") {
-  characterCodes = compilePattern(
-    addTime(generateNightArtwork())
-  );
-} else if (displayMode === "day_artwork") {
+  const savedNightArtwork = getSavedNightArtwork();
+
+  if (savedNightArtwork) {
+    characterCodes = JSON.parse(savedNightArtwork);
+  } else {
+    const nightArtwork = compilePattern(
+      addTime(generateNightArtwork())
+    );
+
+    saveNightArtwork(
+      JSON.stringify(nightArtwork)
+    );
+
+    characterCodes = nightArtwork;
+  }
+}
+
+else if (displayMode === "day_artwork") {
   characterCodes = selectedArtwork.characters;
 
 const quote = await getQuote();
