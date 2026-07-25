@@ -11,19 +11,29 @@ const COLOURS = [
   "BLACK",
 ];
 
-function createHourlySeed() {
+const QUOTE_LINES = [
+  "DO IT",
+  "NOW",
+];
+
+function getLondonTimeParts() {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
+    minute: "2-digit",
     hourCycle: "h23",
   }).formatToParts(new Date());
 
-  const values = Object.fromEntries(
+  return Object.fromEntries(
     parts.map(({ type, value }) => [type, value])
   );
+}
+
+function createHourlySeed() {
+  const values = getLondonTimeParts();
 
   return Number(
     `${values.year}${values.month}${values.day}${values.hour}`
@@ -178,21 +188,7 @@ function generateConfetti(palette) {
 }
 
 function getCurrentTimeCharacters() {
-  const now = new Date();
-
-  const londonParts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/London",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(now);
-
-  const values = Object.fromEntries(
-    londonParts.map(({ type, value }) => [type, value])
-  );
+  const values = getLondonTimeParts();
 
   const roundedMinute =
     Math.floor(Number(values.minute) / 5) * 5;
@@ -201,6 +197,31 @@ function getCurrentTimeCharacters() {
     `${values.hour}:${String(roundedMinute).padStart(2, "0")}`;
 
   return [...time];
+}
+
+function isFirstFifteenMinutes() {
+  const values = getLondonTimeParts();
+
+  return Number(values.minute) < 15;
+}
+
+function addQuote(grid) {
+  const result = grid.map((row) => [...row]);
+
+  QUOTE_LINES.forEach((line, row) => {
+    const characters = [...line.toUpperCase()];
+    const startColumn = Math.floor(
+      (15 - characters.length) / 2
+    );
+
+    result[row].splice(
+      startColumn,
+      characters.length,
+      ...characters
+    );
+  });
+
+  return result;
 }
 
 function addTime(grid) {
@@ -227,7 +248,11 @@ function generateArtwork() {
   const selectedGenerator = chooseRandom(generators);
   const background = selectedGenerator(palette);
 
-  return addTime(background);
+  const artworkWithQuote = isFirstFifteenMinutes()
+    ? addQuote(background)
+    : background;
+
+  return addTime(artworkWithQuote);
 }
 
 export const artwork = [
