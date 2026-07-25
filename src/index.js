@@ -383,16 +383,25 @@ if (displayMode === "night") {
     "",
     "",
   ];
+if (displayMode === "night") {
+  lines = [
+    "NIGHT MODE",
+    "",
+    "",
+  ];
+
 } else if (displayMode === "day_artwork") {
+
   characterCodes = selectedArtwork.characters;
 
   const quoteText = await getQuote();
 
   if (quoteText) {
-    console.log("Quote selected:", quoteText);
+    console.log("Using quote:", quoteText);
   }
-}
+
 } else {
+
   lines = [
     formatBettyRange(bettyRangeMiles),
     `MONSOM ${formatPercentage(
@@ -406,8 +415,8 @@ if (displayMode === "night") {
         : Number(netGridTodayKwh)
     ),
   ];
-}
 
+}
 const payload = characterCodes ?? lines.join("\n");
 
 console.log("");
