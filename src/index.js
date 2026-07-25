@@ -386,8 +386,6 @@ if (displayMode === "night") {
 } else if (displayMode === "day_artwork") {
   characterCodes = selectedArtwork.characters;
 
-const quote = await getQuote();
-
 if (quote) {
   console.log("Using quote:", quote);
 
