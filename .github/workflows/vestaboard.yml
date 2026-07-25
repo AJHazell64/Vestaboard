@@ -35,7 +35,7 @@ jobs:
           TESLA_CLIENT_SECRET: ${{ secrets.TESLA_CLIENT_SECRET }}
           TESLA_REFRESH_TOKEN: ${{ secrets.TESLA_REFRESH_TOKEN }}
           GH_PAT: ${{ secrets.GH_PAT }}
-
+          LAST_BETTY_RANGE_MILES: ${{ vars.LAST_BETTY_RANGE_MILES }}
       - name: Save replacement Tesla refresh token
         if: ${{ success() && hashFiles('tesla-refresh-token.txt') != '' }}
         run: |
