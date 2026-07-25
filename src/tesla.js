@@ -130,7 +130,6 @@ function getLondonUtcOffset() {
 function getTodayEnergyHistoryPath(siteId) {
   const { year, month, day } = getLondonDateParts();
   const offset = getLondonUtcOffset();
-
   const date = `${year}-${month}-${day}`;
 
   const parameters = new URLSearchParams({
@@ -144,6 +143,45 @@ function getTodayEnergyHistoryPath(siteId) {
   return `/api/1/energy_sites/${encodeURIComponent(
     siteId
   )}/calendar_history?${parameters.toString()}`;
+}
+
+function numberOrZero(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function calculateTodayGridEnergy(historyData) {
+  const timeSeries = historyData?.response?.time_series;
+
+  if (!Array.isArray(timeSeries)) {
+    return {
+      gridImportedKwh: null,
+      gridExportedKwh: null,
+      netGridKwh: null,
+    };
+  }
+
+  let gridImportedWh = 0;
+  let gridExportedWh = 0;
+
+  for (const entry of timeSeries) {
+    gridImportedWh += numberOrZero(entry.grid_energy_imported);
+
+    gridExportedWh +=
+      numberOrZero(entry.grid_energy_exported_from_solar) +
+      numberOrZero(entry.grid_energy_exported_from_generator) +
+      numberOrZero(entry.grid_energy_exported_from_battery) +
+      numberOrZero(entry.grid_services_energy_exported);
+  }
+
+  const gridImportedKwh = gridImportedWh / 1000;
+  const gridExportedKwh = gridExportedWh / 1000;
+
+  return {
+    gridImportedKwh,
+    gridExportedKwh,
+    netGridKwh: gridExportedKwh - gridImportedKwh,
+  };
 }
 
 export async function getTeslaDashboardData(accessToken) {
@@ -173,10 +211,6 @@ export async function getTeslaDashboardData(accessToken) {
       rangeMiles: null,
     };
 
-    /*
-     * Only request vehicle_data when the car is already online.
-     * This code never wakes the car.
-     */
     if (vehicleProduct.state === "online") {
       try {
         const vehicleData = await teslaGet(
@@ -228,26 +262,53 @@ export async function getTeslaDashboardData(accessToken) {
         homePowerWatts: status.load_power ?? null,
         gridPowerWatts: status.grid_power ?? null,
         gridStatus: status.grid_status ?? null,
+        gridImportedTodayKwh: null,
+        gridExportedTodayKwh: null,
+        netGridTodayKwh: null,
       };
     } catch (error) {
       console.warn(`Powerwall live data unavailable: ${error.message}`);
     }
 
-    /*
-     * Temporary diagnostic request.
-     * This prints the exact history fields returned by your Powerwall.
-     */
     try {
-      const historyPath = getTodayEnergyHistoryPath(siteId);
-
       const energyHistory = await teslaGet(
         accessToken,
-        historyPath
+        getTodayEnergyHistoryPath(siteId)
       );
 
-      console.log("TESLA ENERGY HISTORY START");
-      console.log(JSON.stringify(energyHistory, null, 2));
-      console.log("TESLA ENERGY HISTORY END");
+      const totals = calculateTodayGridEnergy(energyHistory);
+
+      if (!dashboard.energy) {
+        dashboard.energy = {
+          siteId,
+          batteryPercent: null,
+          batteryPowerWatts: null,
+          solarPowerWatts: null,
+          homePowerWatts: null,
+          gridPowerWatts: null,
+          gridStatus: null,
+          gridImportedTodayKwh: null,
+          gridExportedTodayKwh: null,
+          netGridTodayKwh: null,
+        };
+      }
+
+      dashboard.energy.gridImportedTodayKwh =
+        totals.gridImportedKwh;
+
+      dashboard.energy.gridExportedTodayKwh =
+        totals.gridExportedKwh;
+
+      dashboard.energy.netGridTodayKwh =
+        totals.netGridKwh;
+
+      console.log(
+        `Today's grid energy: imported ${totals.gridImportedKwh?.toFixed(
+          3
+        )} kWh, exported ${totals.gridExportedKwh?.toFixed(
+          3
+        )} kWh, net ${totals.netGridKwh?.toFixed(3)} kWh`
+      );
     } catch (error) {
       console.warn(`Energy history unavailable: ${error.message}`);
     }
