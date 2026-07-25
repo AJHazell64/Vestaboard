@@ -9,6 +9,7 @@ import {
   createGrid,
   addTime,
 } from "../data/artwork.js";
+import { compilePattern } from "./artworkCompiler.js";
 import { getQuote } from "../data/quoteProvider.js";
 function requireEnvironmentVariable(...names) {
   for (const name of names) {
@@ -420,13 +421,15 @@ if (quote) {
 let updatedGrid = dashboardGrid;
 
 dashboardLines.forEach((line) => {
-  updatedGrid = addContent(
-    updatedGrid,
+  addContent(
+    dashboardGrid,
     line
   );
 });
 
-characterCodes = addTime(updatedGrid);
+characterCodes = compilePattern(
+  addTime(updatedGrid)
+);
 }
 
 const payload = characterCodes ?? lines.join("\n");
