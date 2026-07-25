@@ -420,10 +420,15 @@ if (quote) {
 
 let updatedGrid = dashboardGrid;
 
-dashboardLines.forEach((line) => {
-  updatedGrid = addContent(
-    updatedGrid,
-    line
+dashboardLines.forEach((line, index) => {
+  const characters = line
+    .toUpperCase()
+    .split("");
+
+  updatedGrid[index].splice(
+    0,
+    characters.length,
+    ...characters
   );
 });
 characterCodes = compilePattern(
