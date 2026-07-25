@@ -12,21 +12,21 @@ const COLOURS = [
 ];
 
 const CONTENT = [
-  ["DO IT", "NOW"],
-  ["KEEP MOVING", "FORWARD"],
-  ["SMALL STEPS", "COUNT"],
-  ["YOU HAVE GOT", "THIS"],
-  ["STAY CURIOUS", "ALWAYS"],
-  ["MAKE IT", "HAPPEN"],
-  ["BE KIND", "TODAY"],
-  ["REST IS", "PRODUCTIVE"],
-  ["YOU ARE", "DOING GREAT"],
-  ["BANANAS ARE", "BERRIES"],
-  ["OCTOPUSES", "HAVE 3 HEARTS"],
-  ["SHARKS ARE", "OLDER THAN TREES"],
-  ["HONEY NEVER", "SPOILS"],
-  ["I NEED SPACE", "SAID THE STAR"],
-  ["A GROUP OF", "CROWS IS MURDER"],
+  "DO IT NOW",
+  "KEEP MOVING FORWARD",
+  "SMALL STEPS COUNT",
+  "YOU HAVE GOT THIS",
+  "STAY CURIOUS ALWAYS",
+  "MAKE IT HAPPEN",
+  "BE KIND TODAY",
+  "REST IS PRODUCTIVE",
+  "YOU ARE DOING GREAT",
+  "BANANAS ARE BERRIES",
+  "OCTOPUSES HAVE 3 HEARTS",
+  "SHARKS ARE OLDER THAN TREES",
+  "HONEY NEVER SPOILS",
+  "I NEED SPACE SAID THE STAR",
+  "A GROUP OF CROWS IS MURDER",
 ];
 
 function getLondonTimeParts() {
@@ -226,18 +226,44 @@ function convertTextToCharacters(text) {
 
 function addContent(grid, content) {
   const result = grid.map((row) => [...row]);
-  const rowLimits = [15, 9, 9];
 
-  content.slice(0, 3).forEach((line, row) => {
-    const characters = convertTextToCharacters(line)
-      .slice(0, rowLimits[row]);
+  const words = content.toUpperCase().split(" ");
+  const rows = ["", "", ""];
+  let row = 0;
 
-    result[row].splice(
+  for (const word of words) {
+    const testLine =
+      rows[row] === ""
+        ? word
+        : `${rows[row]} ${word}`;
+
+    const limit = row === 0 ? 15 : 9;
+
+    if (testLine.length <= limit) {
+      rows[row] = testLine;
+    } else {
+      row += 1;
+
+      if (row > 2) {
+        break;
+      }
+
+      rows[row] = word;
+    }
+  }
+
+  rows.forEach((line, index) => {
+    const characters = convertTextToCharacters(line);
+
+    result[index].splice(
       0,
       characters.length,
       ...characters
     );
   });
+
+  return result;
+}
 
   return result;
 }
