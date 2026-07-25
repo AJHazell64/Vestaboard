@@ -202,7 +202,7 @@ function getCurrentTimeCharacters() {
 function isFirstFifteenMinutes() {
   const values = getLondonTimeParts();
 
-  return Number(values.minute) < 15;
+ return true;
 }
 
 function addQuote(grid) {
