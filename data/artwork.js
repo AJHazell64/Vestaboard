@@ -198,11 +198,8 @@ function getCurrentTimeCharacters() {
 }
 
 function isFirstFifteenMinutes() {
-  const values = getLondonTimeParts();
-
-  return Number(values.minute) < 15;
+  return true;
 }
-
 function convertTextToCharacters(text) {
   return [...text.toUpperCase()].map(
     (character) => character === " " ? "BLANK" : character
