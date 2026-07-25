@@ -60,5 +60,11 @@ export function canFitQuote(text) {
 }
 
 export function getFallbackQuote() {
-  return "THIS QUOTE IS DEFINITELY TOO LONG TO FIT ON THE VESTABOARD";
+  const validQuotes = FALLBACK_QUOTES.filter((quote) =>
+    canFitQuote(quote)
+  );
+
+  return validQuotes[
+    Math.floor(Math.random() * validQuotes.length)
+  ];
 }
