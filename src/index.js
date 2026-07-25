@@ -1,6 +1,10 @@
-import * as teslaModule from "./tesla.js";
+import { execFileSync } from "node:child_process";
+import {
+  refreshTeslaTokens,
+  getTeslaDashboardData,
+} from "./tesla.js";
 
-function getRequiredEnvironmentVariable(...names) {
+function requireEnvironmentVariable(...names) {
   for (const name of names) {
     const value = process.env[name];
 
@@ -14,108 +18,205 @@ function getRequiredEnvironmentVariable(...names) {
   );
 }
 
-function firstValidNumber(...values) {
-  for (const value of values) {
-    const number = Number(value);
+function runGitHubCommand(argumentsList) {
+  const token =
+    process.env.GH_TOKEN ||
+    process.env.GITHUB_TOKEN;
 
-    if (Number.isFinite(number)) {
-      return number;
-    }
+  const repository = process.env.GITHUB_REPOSITORY;
+
+  if (!token || !repository) {
+    return null;
+  }
+
+  try {
+    return execFileSync(
+      "gh",
+      [...argumentsList, "--repo", repository],
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          GH_TOKEN: token,
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    ).trim();
+  } catch {
+    return null;
+  }
+}
+
+function saveReplacementTeslaRefreshToken(refreshToken) {
+  if (!refreshToken) {
+    return;
+  }
+
+  const token =
+    process.env.GH_TOKEN ||
+    process.env.GITHUB_TOKEN;
+
+  const repository = process.env.GITHUB_REPOSITORY;
+
+  if (!token || !repository) {
+    console.warn(
+      "Replacement Tesla refresh token was returned, but GitHub authentication is unavailable"
+    );
+    return;
+  }
+
+  try {
+    execFileSync(
+      "gh",
+      [
+        "secret",
+        "set",
+        "TESLA_REFRESH_TOKEN",
+        "--body",
+        refreshToken,
+        "--repo",
+        repository,
+      ],
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          GH_TOKEN: token,
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    );
+
+    console.log(
+      "Replacement Tesla refresh token saved securely"
+    );
+  } catch (error) {
+    console.warn(
+      `Unable to save replacement Tesla refresh token: ${
+        error.message
+      }`
+    );
+  }
+}
+
+function getSavedBettyBatteryPercentage() {
+  const environmentValue = Number(
+    process.env.LAST_BETTY_BATTERY
+  );
+
+  if (
+    Number.isFinite(environmentValue) &&
+    environmentValue >= 0
+  ) {
+    return environmentValue;
+  }
+
+  const storedValue = runGitHubCommand([
+    "variable",
+    "get",
+    "LAST_BETTY_BATTERY",
+  ]);
+
+  const percentage = Number(storedValue);
+
+  if (
+    Number.isFinite(percentage) &&
+    percentage >= 0
+  ) {
+    return percentage;
   }
 
   return null;
 }
 
-function findTeslaFunction() {
-  const teslaFunction =
-    teslaModule.getTeslaData ??
-    teslaModule.getTeslaAndPowerwallData ??
-    teslaModule.fetchTeslaData ??
-    teslaModule.default;
-
-  if (typeof teslaFunction !== "function") {
-    throw new Error(
-      "Could not find the Tesla data function exported by tesla.js."
-    );
+function saveBettyBatteryPercentage(percentage) {
+  if (
+    !Number.isFinite(percentage) ||
+    percentage < 0
+  ) {
+    return;
   }
 
-  return teslaFunction;
+  const token =
+    process.env.GH_TOKEN ||
+    process.env.GITHUB_TOKEN;
+
+  const repository = process.env.GITHUB_REPOSITORY;
+
+  if (!token || !repository) {
+    console.warn(
+      "Unable to save Betty's latest battery percentage"
+    );
+    return;
+  }
+
+  try {
+    execFileSync(
+      "gh",
+      [
+        "variable",
+        "set",
+        "LAST_BETTY_BATTERY",
+        "--body",
+        String(Math.round(percentage)),
+        "--repo",
+        repository,
+      ],
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          GH_TOKEN: token,
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    );
+
+    console.log(
+      `Saved Betty's battery percentage: ${Math.round(
+        percentage
+      )}%`
+    );
+  } catch (error) {
+    console.warn(
+      `Unable to save Betty's battery percentage: ${
+        error.message
+      }`
+    );
+  }
 }
 
 function formatPercentage(value) {
-  if (value === null) {
+  if (!Number.isFinite(value)) {
     return "--%";
   }
 
   return `${Math.round(value)}%`;
 }
 
-function getBettyBatteryPercentage(data) {
-  return firstValidNumber(
-    data.lastRecordedVehicleBatteryPercentage,
-    data.lastKnownVehicleBatteryPercentage,
-    data.vehicleBatteryPercentage,
-    data.vehicleBatteryLevel,
-    data.carBatteryPercentage,
-    data.carBatteryLevel,
-    data.teslaBatteryPercentage,
-    data.teslaBatteryLevel,
-    data.batteryLevel,
-    data.vehicle?.batteryPercentage,
-    data.vehicle?.batteryLevel,
-    data.vehicle?.chargeState?.battery_level,
-    data.vehicle?.charge_state?.battery_level
-  );
-}
-
-function getPowerwallPercentage(data) {
-  return firstValidNumber(
-    data.powerwallPercentage,
-    data.powerwallBatteryPercentage,
-    data.powerwallBatteryLevel,
-    data.energySiteBatteryPercentage,
-    data.energy?.percentageCharged,
-    data.energy?.percentage_charged,
-    data.liveStatus?.percentageCharged,
-    data.liveStatus?.percentage_charged
-  );
-}
-
-function getNetGridToday(data) {
-  const existingNetValue = firstValidNumber(data.netGridTodayKwh);
-
-  if (existingNetValue !== null) {
-    return existingNetValue;
+function formatDailyNetEnergy(netKwh) {
+  if (!Number.isFinite(netKwh)) {
+    return "IMPORT --KWH";
   }
 
-  const imported = firstValidNumber(data.gridImportedTodayKwh) ?? 0;
-  const exported = firstValidNumber(data.gridExportedTodayKwh) ?? 0;
+  const amount = Math.abs(netKwh).toFixed(1);
 
-  /*
-   * Negative means net import.
-   * Positive means net export.
-   */
-  return exported - imported;
-}
-
-function formatDayEnergy(netGridTodayKwh) {
-  const roundedValue = Math.abs(netGridTodayKwh).toFixed(1);
-
-  if (netGridTodayKwh > 0) {
-    return `EXPORT ${roundedValue}KWH`;
+  if (netKwh > 0) {
+    return `EXPORT ${amount}KWH`;
   }
 
-  return `IMPORT ${roundedValue}KWH`;
+  return `IMPORT ${amount}KWH`;
 }
 
 async function sendToVestaboard(message) {
-  const readWriteKey = getRequiredEnvironmentVariable(
+  const readWriteKey = requireEnvironmentVariable(
     "VESTABOARD_READ_WRITE_KEY",
     "VESTABOARD_API_KEY"
   );
 
   const apiUrl =
-    process.env.VESTABOARD_API_URL ?? "https://rw.vestaboard.com/";
+    process.env.VESTABOARD_API_URL ||
+    "https://rw.vestaboard.com/";
 
   console.log("Sending dashboard to Vestaboard");
 
@@ -123,7 +224,8 @@ async function sendToVestaboard(message) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Vestaboard-Read-Write-Key": readWriteKey,
+      "X-Vestaboard-Read-Write-Key":
+        readWriteKey,
     },
     body: JSON.stringify({
       text: message,
@@ -132,25 +234,20 @@ async function sendToVestaboard(message) {
 
   const responseText = await response.text();
 
-  let responseData = null;
-
-  try {
-    responseData = JSON.parse(responseText);
-  } catch {
-    // The response was not JSON.
-  }
-
-  const isDuplicateMessage =
-    responseData?.type === "FingerprintMatch" ||
+  const duplicateMessage =
     responseText.includes("FingerprintMatch") ||
     responseText.includes("currently displayed");
 
-  if (!response.ok && !isDuplicateMessage) {
-    throw new Error(`Vestaboard update failed: ${responseText}`);
+  if (!response.ok && !duplicateMessage) {
+    throw new Error(
+      `Vestaboard update failed: ${responseText}`
+    );
   }
 
-  if (isDuplicateMessage) {
-    console.log("Vestaboard already displays this message");
+  if (duplicateMessage) {
+    console.log(
+      "Vestaboard already displays this message"
+    );
     return;
   }
 
@@ -158,29 +255,82 @@ async function sendToVestaboard(message) {
 }
 
 async function main() {
-  const getTeslaData = findTeslaFunction();
+  console.log("Refreshing Tesla access token");
 
-  console.log("Retrieving Tesla and Powerwall data");
+  const tokens = await refreshTeslaTokens();
 
-  const data = await getTeslaData();
+  if (
+    tokens.refreshToken &&
+    tokens.refreshToken !==
+      process.env.TESLA_REFRESH_TOKEN
+  ) {
+    saveReplacementTeslaRefreshToken(
+      tokens.refreshToken
+    );
+  }
 
-  const bettyBatteryPercentage = getBettyBatteryPercentage(data);
-  const powerwallPercentage = getPowerwallPercentage(data);
-  const netGridTodayKwh = getNetGridToday(data);
+  console.log(
+    "Retrieving Tesla and Powerwall data"
+  );
+
+  const dashboard =
+    await getTeslaDashboardData(
+      tokens.accessToken
+    );
+
+  const currentBettyBattery =
+    Number(dashboard.vehicle?.batteryLevel);
+
+  let bettyBatteryPercentage;
+
+  if (
+    Number.isFinite(currentBettyBattery) &&
+    dashboard.vehicle?.batteryLevel !== null
+  ) {
+    bettyBatteryPercentage =
+      currentBettyBattery;
+
+    saveBettyBatteryPercentage(
+      currentBettyBattery
+    );
+  } else {
+    bettyBatteryPercentage =
+      getSavedBettyBatteryPercentage();
+  }
+
+  const monsomBatteryPercentage =
+    Number(
+      dashboard.energy?.batteryPercent
+    );
+
+  const netGridTodayKwh =
+    Number(
+      dashboard.energy?.netGridTodayKwh
+    );
 
   const lines = [
-    `BETTY ${formatPercentage(bettyBatteryPercentage)}`,
-    `MONSOM ${formatPercentage(powerwallPercentage)}`,
-    formatDayEnergy(netGridTodayKwh),
+    `BETTY ${formatPercentage(
+      bettyBatteryPercentage
+    )}`,
+    `MONSOM ${formatPercentage(
+      dashboard.energy?.batteryPercent === null
+        ? null
+        : monsomBatteryPercentage
+    )}`,
+    formatDailyNetEnergy(
+      dashboard.energy?.netGridTodayKwh === null
+        ? null
+        : netGridTodayKwh
+    ),
   ];
 
-  const dashboard = lines.join("\n");
+  const message = lines.join("\n");
 
   console.log("");
-  console.log(dashboard);
+  console.log(message);
   console.log("");
 
-  await sendToVestaboard(dashboard);
+  await sendToVestaboard(message);
 }
 
 main().catch((error) => {
