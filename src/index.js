@@ -386,14 +386,12 @@ if (displayMode === "night") {
 } else if (displayMode === "day_artwork") {
   characterCodes = selectedArtwork.characters;
 
-  const quote = await getQuote();
+const quote = await getQuote();
 
-  if (quote) {
-    console.log("Using quote:", quote);
-
-    // TODO: replace artwork with quote artwork here
-  }
+if (quote) {
+  console.log("Using quote:", quote);
 }
+
 } else {
   lines = [
     formatBettyRange(bettyRangeMiles),
