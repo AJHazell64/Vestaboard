@@ -242,9 +242,9 @@ console.log("Tesla range fields:", {
           chargeState.charging_state ?? "Unknown";
 
 dashboard.vehicle.rangeMiles =
-  chargeState.est_battery_range == null
-    ? null
-    : Math.round(chargeState.est_battery_range);
+chargeState.ideal_battery_range == null
+  ? null
+  : Math.round(chargeState.ideal_battery_range);
       } catch (error) {
         console.warn(
           `Vehicle data unavailable: ${error.message}`
