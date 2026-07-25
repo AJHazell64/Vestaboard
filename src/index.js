@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import {
   refreshTeslaTokens,
   getTeslaDashboardData,
@@ -141,15 +142,24 @@ function getSavedBettyRangeMiles() {
 
   return null;
 }
-function getSavedNightArtwork() {
-  const storedValue = runGitHubCommand([
-    "variable",
-    "get",
-    "LAST_NIGHT_ARTWORK",
-  ]);
+const nightArtworkFile = "./data/nightArtwork.json";
 
-  return storedValue || null;
+function loadNightArtworkFile() {
+  if (!existsSync(nightArtworkFile)) {
+    return null;
+  }
+
+  return readFileSync(nightArtworkFile, "utf8");
 }
+
+function saveNightArtworkFile(artworkData) {
+  writeFileSync(nightArtworkFile, artworkData, "utf8");
+}
+
+function getSavedNightArtwork() {
+  return loadNightArtworkFile();
+}
+
 
 function getSavedNightDate() {
   const storedValue = runGitHubCommand([
