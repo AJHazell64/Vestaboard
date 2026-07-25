@@ -297,7 +297,7 @@ function getUkTimeParts() {
 }
 
 function getDisplayMode() {
-  const { totalMinutes, minute } = getUkTimeParts();
+  const { totalMinutes } = getUkTimeParts();
 
   // Night: 23:30 - 07:00
   if (totalMinutes >= 23 * 60 + 30 || totalMinutes < 7 * 60) {
@@ -311,12 +311,6 @@ function getDisplayMode() {
 
   // Day: 09:00 - 21:00
   if (totalMinutes < 21 * 60) {
-    // First 10 minutes of every hour = quote
-    if (minute < 10) {
-      return "day_quote";
-    }
-
-    // Remaining 50 minutes = artwork
     return "day_artwork";
   }
 
@@ -388,14 +382,8 @@ if (displayMode === "night") {
     "",
     "",
   ];
-} else if (displayMode === "day_quote") {
-  lines = [
-    "DO IT NOW",
-    "",
-    "",
-  ];
 } else if (displayMode === "day_artwork") {
-characterCodes = selectedArtwork.characters;
+  characterCodes = selectedArtwork.characters;
 } else {
   lines = [
     formatBettyRange(bettyRangeMiles),
