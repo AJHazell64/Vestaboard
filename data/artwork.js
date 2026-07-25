@@ -227,8 +227,11 @@ function convertTextToCharacters(text) {
 function addContent(grid, content) {
   const result = grid.map((row) => [...row]);
 
-  content.forEach((line, row) => {
-    const characters = convertTextToCharacters(line);
+  const rowLimits = [15, 15, 9];
+
+  content.slice(0, 3).forEach((line, row) => {
+    const characters = convertTextToCharacters(line)
+      .slice(0, rowLimits[row]);
 
     result[row].splice(
       0,
