@@ -18,11 +18,17 @@ function requireEnvironmentVariable(...names) {
   );
 }
 
-function runGitHubCommand(argumentsList) {
-  const token =
+function getGitHubToken() {
+  return (
+    process.env.GH_PAT ||
     process.env.GH_TOKEN ||
-    process.env.GITHUB_TOKEN;
+    process.env.GITHUB_TOKEN ||
+    null
+  );
+}
 
+function runGitHubCommand(argumentsList) {
+  const token = getGitHubToken();
   const repository = process.env.GITHUB_REPOSITORY;
 
   if (!token || !repository) {
@@ -52,10 +58,7 @@ function saveReplacementTeslaRefreshToken(refreshToken) {
     return;
   }
 
-  const token =
-    process.env.GH_TOKEN ||
-    process.env.GITHUB_TOKEN;
-
+  const token = getGitHubToken();
   const repository = process.env.GITHUB_REPOSITORY;
 
   if (!token || !repository) {
@@ -92,60 +95,59 @@ function saveReplacementTeslaRefreshToken(refreshToken) {
     );
   } catch (error) {
     console.warn(
-      `Unable to save replacement Tesla refresh token: ${
-        error.message
-      }`
+      `Unable to save replacement Tesla refresh token: ${error.message}`
     );
   }
 }
 
-function getSavedBettyBatteryPercentage() {
-  const environmentValue = Number(
-    process.env.LAST_BETTY_BATTERY
-  );
+function getSavedBettyRangeMiles() {
+  const environmentValue =
+    process.env.LAST_BETTY_RANGE_MILES;
 
   if (
-    Number.isFinite(environmentValue) &&
-    environmentValue >= 0
+    environmentValue !== undefined &&
+    environmentValue !== ""
   ) {
-    return environmentValue;
+    const range = Number(environmentValue);
+
+    if (Number.isFinite(range) && range >= 0) {
+      return range;
+    }
   }
 
   const storedValue = runGitHubCommand([
     "variable",
     "get",
-    "LAST_BETTY_BATTERY",
+    "LAST_BETTY_RANGE_MILES",
   ]);
 
-  const percentage = Number(storedValue);
+  if (storedValue === null || storedValue === "") {
+    return null;
+  }
 
-  if (
-    Number.isFinite(percentage) &&
-    percentage >= 0
-  ) {
-    return percentage;
+  const range = Number(storedValue);
+
+  if (Number.isFinite(range) && range >= 0) {
+    return range;
   }
 
   return null;
 }
 
-function saveBettyBatteryPercentage(percentage) {
+function saveBettyRangeMiles(rangeMiles) {
   if (
-    !Number.isFinite(percentage) ||
-    percentage < 0
+    !Number.isFinite(rangeMiles) ||
+    rangeMiles < 0
   ) {
     return;
   }
 
-  const token =
-    process.env.GH_TOKEN ||
-    process.env.GITHUB_TOKEN;
-
+  const token = getGitHubToken();
   const repository = process.env.GITHUB_REPOSITORY;
 
   if (!token || !repository) {
     console.warn(
-      "Unable to save Betty's latest battery percentage"
+      "Unable to save Betty's latest range"
     );
     return;
   }
@@ -156,9 +158,9 @@ function saveBettyBatteryPercentage(percentage) {
       [
         "variable",
         "set",
-        "LAST_BETTY_BATTERY",
+        "LAST_BETTY_RANGE_MILES",
         "--body",
-        String(Math.round(percentage)),
+        String(Math.round(rangeMiles)),
         "--repo",
         repository,
       ],
@@ -173,17 +175,23 @@ function saveBettyBatteryPercentage(percentage) {
     );
 
     console.log(
-      `Saved Betty's battery percentage: ${Math.round(
-        percentage
-      )}%`
+      `Saved Betty's range: ${Math.round(
+        rangeMiles
+      )} miles`
     );
   } catch (error) {
     console.warn(
-      `Unable to save Betty's battery percentage: ${
-        error.message
-      }`
+      `Unable to save Betty's range: ${error.message}`
     );
   }
+}
+
+function formatBettyRange(rangeMiles) {
+  if (!Number.isFinite(rangeMiles)) {
+    return "BETTY --MI";
+  }
+
+  return `BETTY ${Math.round(rangeMiles)}MI`;
 }
 
 function formatPercentage(value) {
@@ -209,15 +217,18 @@ function formatDailyNetEnergy(netKwh) {
 }
 
 async function sendToVestaboard(message) {
-  const readWriteKey = requireEnvironmentVariable(
-    "VESTABOARD_TOKEN"
-  );
+  const readWriteKey =
+    requireEnvironmentVariable(
+      "VESTABOARD_TOKEN"
+    );
 
   const apiUrl =
     process.env.VESTABOARD_API_URL ||
     "https://rw.vestaboard.com/";
 
-  console.log("Sending dashboard to Vestaboard");
+  console.log(
+    "Sending dashboard to Vestaboard"
+  );
 
   const response = await fetch(apiUrl, {
     method: "POST",
@@ -231,11 +242,16 @@ async function sendToVestaboard(message) {
     }),
   });
 
-  const responseText = await response.text();
+  const responseText =
+    await response.text();
 
   const duplicateMessage =
-    responseText.includes("FingerprintMatch") ||
-    responseText.includes("currently displayed");
+    responseText.includes(
+      "FingerprintMatch"
+    ) ||
+    responseText.includes(
+      "currently displayed"
+    );
 
   if (!response.ok && !duplicateMessage) {
     throw new Error(
@@ -250,13 +266,18 @@ async function sendToVestaboard(message) {
     return;
   }
 
-  console.log("Vestaboard updated successfully");
+  console.log(
+    "Vestaboard updated successfully"
+  );
 }
 
 async function main() {
-  console.log("Refreshing Tesla access token");
+  console.log(
+    "Refreshing Tesla access token"
+  );
 
-  const tokens = await refreshTeslaTokens();
+  const tokens =
+    await refreshTeslaTokens();
 
   if (
     tokens.refreshToken &&
@@ -277,49 +298,45 @@ async function main() {
       tokens.accessToken
     );
 
-  const currentBettyBattery =
-    Number(dashboard.vehicle?.batteryLevel);
+  const currentRange =
+    dashboard.vehicle?.rangeMiles;
 
-  let bettyBatteryPercentage;
+  let bettyRangeMiles;
 
   if (
-    Number.isFinite(currentBettyBattery) &&
-    dashboard.vehicle?.batteryLevel !== null
+    currentRange !== null &&
+    currentRange !== undefined &&
+    Number.isFinite(Number(currentRange))
   ) {
-    bettyBatteryPercentage =
-      currentBettyBattery;
+    bettyRangeMiles = Number(currentRange);
 
-    saveBettyBatteryPercentage(
-      currentBettyBattery
+    saveBettyRangeMiles(
+      bettyRangeMiles
     );
   } else {
-    bettyBatteryPercentage =
-      getSavedBettyBatteryPercentage();
+    bettyRangeMiles =
+      getSavedBettyRangeMiles();
   }
 
-  const monsomBatteryPercentage =
-    Number(
-      dashboard.energy?.batteryPercent
-    );
+  const monsomPercentage =
+    dashboard.energy?.batteryPercent;
 
   const netGridTodayKwh =
-    Number(
-      dashboard.energy?.netGridTodayKwh
-    );
+    dashboard.energy?.netGridTodayKwh;
 
   const lines = [
-    `BETTY ${formatPercentage(
-      bettyBatteryPercentage
-    )}`,
+    formatBettyRange(
+      bettyRangeMiles
+    ),
     `MONSOM ${formatPercentage(
-      dashboard.energy?.batteryPercent === null
+      monsomPercentage === null
         ? null
-        : monsomBatteryPercentage
+        : Number(monsomPercentage)
     )}`,
     formatDailyNetEnergy(
-      dashboard.energy?.netGridTodayKwh === null
+      netGridTodayKwh === null
         ? null
-        : netGridTodayKwh
+        : Number(netGridTodayKwh)
     ),
   ];
 
