@@ -504,12 +504,6 @@ const nightArtwork = compilePattern(
   generateNightArtwork()
 );
 
-    saveNightArtwork(
-      JSON.stringify(nightArtwork)
-    );
-
-    saveNightDate(today);
-
 characterCodes = addTime(nightArtwork);
   }
 }
