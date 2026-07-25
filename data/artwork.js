@@ -235,7 +235,7 @@ function addContent(grid, content) {
         ? word
         : `${rows[row]} ${word}`;
 
-    const limit = row === 0 ? 15 : 9;
+    const limit = [15, 15, 10][row];
 
     if (testLine.length <= limit) {
       rows[row] = testLine;
