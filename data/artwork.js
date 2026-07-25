@@ -284,7 +284,12 @@ console.log("Artwork generated with clock protection");
   return addTime(artworkWithContent);
 }
 
-export { addContent, createGrid };
+export {
+  addContent,
+  createGrid,
+  getCurrentTimeCharacters,
+  addTime,
+};
 
 export const artwork = [
   {
