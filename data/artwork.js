@@ -178,12 +178,27 @@ function generateConfetti(palette) {
 }
 
 function getCurrentTimeCharacters() {
-  const time = new Intl.DateTimeFormat("en-GB", {
+  const now = new Date();
+
+  const londonParts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
-  }).format(new Date());
+  }).formatToParts(now);
+
+  const values = Object.fromEntries(
+    londonParts.map(({ type, value }) => [type, value])
+  );
+
+  const roundedMinute =
+    Math.floor(Number(values.minute) / 5) * 5;
+
+  const time =
+    `${values.hour}:${String(roundedMinute).padStart(2, "0")}`;
 
   return [...time];
 }
