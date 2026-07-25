@@ -227,7 +227,7 @@ function convertTextToCharacters(text) {
 function addContent(grid, content) {
   const result = grid.map((row) => [...row]);
 
-  const rowLimits = [15, 15, 9];
+  const rowLimits = [15, 9, 9];
 
   content.slice(0, 3).forEach((line, row) => {
     const characters = convertTextToCharacters(line)
@@ -246,7 +246,19 @@ function addContent(grid, content) {
 function addTime(grid) {
   const result = grid.map((row) => [...row]);
 
-  // Fixed separator before the clock
+  // Border above the clock
+  result[1].splice(
+    9,
+    6,
+    "WHITE",
+    "WHITE",
+    "WHITE",
+    "WHITE",
+    "WHITE",
+    "WHITE"
+  );
+
+  // Border to the left of the clock
   result[2][9] = "WHITE";
 
   // Clock
