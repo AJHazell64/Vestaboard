@@ -390,7 +390,10 @@ if (displayMode === "night") {
 
   if (quote) {
     console.log("Using quote:", quote);
+
+    // TODO: replace artwork with quote artwork here
   }
+}
 } else {
   lines = [
     formatBettyRange(bettyRangeMiles),
