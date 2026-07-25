@@ -3,7 +3,7 @@ import {
   refreshTeslaTokens,
   getTeslaDashboardData,
 } from "./tesla.js";
-import { artwork, addContent, createGrid } from "../data/artwork.js";
+import { artwork, addContent, createGrid, convertTextToCharacters } from "../data/artwork.js";
 import { getQuote } from "../data/quoteProvider.js";
 function requireEnvironmentVariable(...names) {
   for (const name of names) {
@@ -390,7 +390,10 @@ if (displayMode === "night") {
   if (quoteText) {
     console.log("Using quote:", quoteText);
 
-    characterCodes = addContent(createGrid(), quoteText);
+    const quoteGrid = addContent(createGrid(), quoteText);
+characterCodes = quoteGrid.map(row =>
+  convertTextToCharacters(row)
+);
   } else {
     console.log("Quote rejected - using artwork");
     characterCodes = selectedArtwork.characters;
