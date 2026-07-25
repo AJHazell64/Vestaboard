@@ -304,7 +304,7 @@ function generateArtwork() {
   const artworkWithContent = isFirstFifteenMinutes()
     ? addContent(background, selectedContent)
     : background;
-
+console.log("Artwork generated with clock protection");
   return addTime(artworkWithContent);
 }
 
