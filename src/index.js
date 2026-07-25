@@ -271,6 +271,49 @@ async function sendToVestaboard(message) {
   );
 }
 
+function getUkTimeParts() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+
+  const hour = Number(
+    parts.find((part) => part.type === "hour")?.value
+  );
+
+  const minute = Number(
+    parts.find((part) => part.type === "minute")?.value
+  );
+
+  return {
+    hour,
+    minute,
+    totalMinutes: hour * 60 + minute,
+  };
+}
+
+function getDisplayMode() {
+  const { totalMinutes } = getUkTimeParts();
+
+  if (
+    totalMinutes >= 23 * 60 + 30 ||
+    totalMinutes < 7 * 60
+  ) {
+    return "night";
+  }
+
+  if (totalMinutes < 9 * 60) {
+    return "morning";
+  }
+
+  if (totalMinutes < 21 * 60) {
+    return "day";
+  }
+
+  return "evening";
+}
 async function main() {
   console.log(
     "Refreshing Tesla access token"
@@ -297,7 +340,9 @@ async function main() {
     await getTeslaDashboardData(
       tokens.accessToken
     );
+const displayMode = getDisplayMode();
 
+console.log(`Display mode: ${displayMode}`);
   const currentRange =
     dashboard.vehicle?.rangeMiles;
 
@@ -319,12 +364,21 @@ async function main() {
   }
 
   const monsomPercentage =
-    dashboard.energy?.batteryPercent;
+    dashboard.energy?.batteryPercent;F
 
   const netGridTodayKwh =
     dashboard.energy?.netGridTodayKwh;
 
-  const lines = [
+let lines;
+
+if (displayMode === "night") {
+  lines = [
+    "NIGHT MODE",
+    "",
+    "",
+  ];
+} else {
+  lines = [
     formatBettyRange(
       bettyRangeMiles
     ),
@@ -339,6 +393,7 @@ async function main() {
         : Number(netGridTodayKwh)
     ),
   ];
+}
 
   const message = lines.join("\n");
 
