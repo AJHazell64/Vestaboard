@@ -259,7 +259,8 @@ function addContent(grid, content) {
       ...characters
     );
   });
-
+  // Keep cell immediately left of clock as artwork
+  result[2][9] = grid[2][9];
   return result;
 }
 
@@ -267,6 +268,14 @@ function addContent(grid, content) {
 function addTime(grid) {
   const result = grid.map((row) => [...row]);
 
+  // Clear protected clock area
+  result[2][10] = "BLANK";
+  result[2][11] = "BLANK";
+  result[2][12] = "BLANK";
+  result[2][13] = "BLANK";
+  result[2][14] = "BLANK";
+
+  // Add clock
   result[2].splice(
     10,
     5,
@@ -275,7 +284,6 @@ function addTime(grid) {
 
   return result;
 }
-
 function generateArtwork() {
   const palette = choosePalette();
 
