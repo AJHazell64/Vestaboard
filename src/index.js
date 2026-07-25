@@ -377,7 +377,8 @@ console.log(`Display mode: ${displayMode}`);
     dashboard.energy?.netGridTodayKwh;
 
 let lines;
-
+const selectedArtwork =
+  artwork[Math.floor(Math.random() * artwork.length)];
 if (displayMode === "night") {
   lines = [
     "NIGHT MODE",
@@ -391,11 +392,7 @@ if (displayMode === "night") {
     "",
   ];
 } else if (displayMode === "day_artwork") {
-  lines = [
-    "ARTWORK MODE",
-    "",
-    "",
-  ];
+  lines = selectedArtwork.lines;
 } else {
   lines = [
     formatBettyRange(bettyRangeMiles),
