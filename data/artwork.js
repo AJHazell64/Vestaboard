@@ -45,11 +45,11 @@ function getLondonTimeParts() {
   );
 }
 
-function createHourlySeed() {
+function createQuoteSeed() {
   const values = getLondonTimeParts();
 
   return Number(
-    `${values.year}${values.month}${values.day}${values.hour}`
+    `${values.year}${values.month}${values.day}${values.hour}${Math.floor(Number(values.minute) / 15)}`
   );
 }
 
@@ -67,7 +67,7 @@ function createSeededRandom(seed) {
   };
 }
 
-const random = createSeededRandom(createHourlySeed());
+const random = createSeededRandom(createQuoteSeed());
 
 function chooseRandom(items) {
   return items[Math.floor(random() * items.length)];
