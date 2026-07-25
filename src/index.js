@@ -3,7 +3,12 @@ import {
   refreshTeslaTokens,
   getTeslaDashboardData,
 } from "./tesla.js";
-import { artwork } from "../data/artwork.js";
+import {
+  artwork,
+  addContent,
+  createGrid,
+  addTime,
+} from "../data/artwork.js";
 import { getQuote } from "../data/quoteProvider.js";
 function requireEnvironmentVariable(...names) {
   for (const name of names) {
@@ -412,16 +417,16 @@ if (quote) {
     ),
   ];
 
-  dashboardLines.forEach((line, index) => {
-    addContent(
-      dashboardGrid,
-      line
-    );
-  });
+let updatedGrid = dashboardGrid;
 
-  characterCodes = dashboardGrid.map(row =>
-    row
+dashboardLines.forEach((line) => {
+  updatedGrid = addContent(
+    updatedGrid,
+    line
   );
+});
+
+characterCodes = addTime(updatedGrid);
 }
 
 const payload = characterCodes ?? lines.join("\n");
