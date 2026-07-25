@@ -230,12 +230,12 @@ function addContent(grid, content) {
   let row = 0;
 
   for (const word of words) {
+    const limit = row === 2 ? 10 : 15;
+
     const testLine =
       rows[row] === ""
         ? word
         : `${rows[row]} ${word}`;
-
-    const limit = row === 0 ? 15 : row === 1 ? 10 : 5;
 
     if (testLine.length <= limit) {
       rows[row] = testLine;
@@ -250,32 +250,22 @@ function addContent(grid, content) {
     }
   }
 
-rows.forEach((line, index) => {
-  const maxCharacters =
-    index === 2 ? 5 : index === 1 ? 10 : 15;
+  rows.forEach((line, index) => {
+    const characters = convertTextToCharacters(line);
 
-  const characters = convertTextToCharacters(line)
-    .slice(0, maxCharacters);
+    result[index].splice(
+      0,
+      characters.length,
+      ...characters
+    );
+  });
 
-  result[index].splice(
-    0,
-    characters.length,
-    ...characters
-  );
-});
-
+  return result;
+}
 
 function addTime(grid) {
   const result = grid.map((row) => [...row]);
 
-  // Clear protected clock area
-  result[2][10] = "BLANK";
-  result[2][11] = "BLANK";
-  result[2][12] = "BLANK";
-  result[2][13] = "BLANK";
-  result[2][14] = "BLANK";
-
-  // Add clock
   result[2].splice(
     10,
     5,
@@ -298,7 +288,7 @@ function generateArtwork() {
   ];
 
   const selectedGenerator = chooseRandom(generators);
-  const selectedContent = "SHARKS ARE OLDER THAN TREES";
+  const selectedContent = chooseRandom(CONTENT);
   const background = selectedGenerator(palette);
 
   const artworkWithContent = isFirstFifteenMinutes()
