@@ -226,7 +226,6 @@ function convertTextToCharacters(text) {
 
 function addContent(grid, content) {
   const result = grid.map((row) => [...row]);
-
   const rowLimits = [15, 9, 9];
 
   content.slice(0, 3).forEach((line, row) => {
@@ -254,19 +253,6 @@ function addTime(grid) {
 
   return result;
 }
-function addTime(grid) {
-  const result = grid.map((row) => [...row]);
-
-  result[2].splice(
-    10,
-    5,
-    ...getCurrentTimeCharacters()
-  );
-
-  return result;
-}
-
-function generateArtwork() {
 
 function generateArtwork() {
   const palette = choosePalette();
