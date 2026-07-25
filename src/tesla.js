@@ -112,7 +112,9 @@ function getLondonUtcOffset() {
     return "+00:00";
   }
 
-  const match = timeZoneName.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
+  const match = timeZoneName.match(
+    /GMT([+-])(\d{1,2})(?::(\d{2}))?/
+  );
 
   if (!match) {
     throw new Error(
@@ -153,42 +155,48 @@ function numberOrZero(value) {
 function calculateTodayGridEnergy(historyData) {
   const timeSeries = historyData?.response?.time_series;
 
-  if (!Array.isArray(timeSeries)) {
+  if (!Array.isArray(timeSeries) || timeSeries.length === 0) {
     return {
-      gridImportedKwh: null,
-      gridExportedKwh: null,
-      netGridKwh: null,
+      importedKwh: null,
+      exportedKwh: null,
+      netKwh: null,
     };
   }
 
-  let gridImportedWh = 0;
-  let gridExportedWh = 0;
+  let importedWh = 0;
+  let exportedWh = 0;
 
   for (const entry of timeSeries) {
-    gridImportedWh += numberOrZero(entry.grid_energy_imported);
+    importedWh += numberOrZero(entry.grid_energy_imported);
 
-    gridExportedWh +=
+    exportedWh +=
       numberOrZero(entry.grid_energy_exported_from_solar) +
       numberOrZero(entry.grid_energy_exported_from_generator) +
       numberOrZero(entry.grid_energy_exported_from_battery) +
       numberOrZero(entry.grid_services_energy_exported);
   }
 
-  const gridImportedKwh = gridImportedWh / 1000;
-  const gridExportedKwh = gridExportedWh / 1000;
+  const importedKwh = importedWh / 1000;
+  const exportedKwh = exportedWh / 1000;
 
   return {
-    gridImportedKwh,
-    gridExportedKwh,
-    netGridKwh: gridExportedKwh - gridImportedKwh,
+    importedKwh,
+    exportedKwh,
+    netKwh: exportedKwh - importedKwh,
   };
 }
 
 export async function getTeslaDashboardData(accessToken) {
-  const productsData = await teslaGet(accessToken, "/api/1/products");
+  const productsData = await teslaGet(
+    accessToken,
+    "/api/1/products"
+  );
+
   const products = productsData.response ?? [];
 
-  const vehicleProduct = products.find((product) => product.vin);
+  const vehicleProduct = products.find(
+    (product) => product.vin
+  );
 
   const energyProduct = products.find(
     (product) => product.resource_type === "battery"
@@ -234,7 +242,10 @@ export async function getTeslaDashboardData(accessToken) {
             ? null
             : Math.round(chargeState.battery_range);
       } catch (error) {
-        console.warn(`Vehicle data unavailable: ${error.message}`);
+        console.warn(
+          `Vehicle data unavailable: ${error.message}`
+        );
+
         dashboard.vehicle.sleeping = true;
       }
     }
@@ -243,31 +254,52 @@ export async function getTeslaDashboardData(accessToken) {
   if (energyProduct?.energy_site_id) {
     const siteId = energyProduct.energy_site_id;
 
+    dashboard.energy = {
+      siteId,
+      batteryPercent: null,
+      batteryPowerWatts: null,
+      solarPowerWatts: null,
+      homePowerWatts: null,
+      gridPowerWatts: null,
+      gridStatus: null,
+      gridImportedTodayKwh: null,
+      gridExportedTodayKwh: null,
+      netGridTodayKwh: null,
+    };
+
     try {
       const liveStatusData = await teslaGet(
         accessToken,
-        `/api/1/energy_sites/${encodeURIComponent(siteId)}/live_status`
+        `/api/1/energy_sites/${encodeURIComponent(
+          siteId
+        )}/live_status`
       );
 
       const status = liveStatusData.response ?? {};
 
-      dashboard.energy = {
-        siteId,
-        batteryPercent:
-          status.percentage_charged == null
-            ? null
-            : Math.round(status.percentage_charged),
-        batteryPowerWatts: status.battery_power ?? null,
-        solarPowerWatts: status.solar_power ?? null,
-        homePowerWatts: status.load_power ?? null,
-        gridPowerWatts: status.grid_power ?? null,
-        gridStatus: status.grid_status ?? null,
-        gridImportedTodayKwh: null,
-        gridExportedTodayKwh: null,
-        netGridTodayKwh: null,
-      };
+      dashboard.energy.batteryPercent =
+        status.percentage_charged == null
+          ? null
+          : Math.round(status.percentage_charged);
+
+      dashboard.energy.batteryPowerWatts =
+        status.battery_power ?? null;
+
+      dashboard.energy.solarPowerWatts =
+        status.solar_power ?? null;
+
+      dashboard.energy.homePowerWatts =
+        status.load_power ?? null;
+
+      dashboard.energy.gridPowerWatts =
+        status.grid_power ?? null;
+
+      dashboard.energy.gridStatus =
+        status.grid_status ?? null;
     } catch (error) {
-      console.warn(`Powerwall live data unavailable: ${error.message}`);
+      console.warn(
+        `Powerwall live data unavailable: ${error.message}`
+      );
     }
 
     try {
@@ -276,41 +308,29 @@ export async function getTeslaDashboardData(accessToken) {
         getTodayEnergyHistoryPath(siteId)
       );
 
-      const totals = calculateTodayGridEnergy(energyHistory);
-
-      if (!dashboard.energy) {
-        dashboard.energy = {
-          siteId,
-          batteryPercent: null,
-          batteryPowerWatts: null,
-          solarPowerWatts: null,
-          homePowerWatts: null,
-          gridPowerWatts: null,
-          gridStatus: null,
-          gridImportedTodayKwh: null,
-          gridExportedTodayKwh: null,
-          netGridTodayKwh: null,
-        };
-      }
+      const totals =
+        calculateTodayGridEnergy(energyHistory);
 
       dashboard.energy.gridImportedTodayKwh =
-        totals.gridImportedKwh;
+        totals.importedKwh;
 
       dashboard.energy.gridExportedTodayKwh =
-        totals.gridExportedKwh;
+        totals.exportedKwh;
 
       dashboard.energy.netGridTodayKwh =
-        totals.netGridKwh;
+        totals.netKwh;
 
       console.log(
-        `Today's grid energy: imported ${totals.gridImportedKwh?.toFixed(
+        `Today: imported ${totals.importedKwh?.toFixed(
           3
-        )} kWh, exported ${totals.gridExportedKwh?.toFixed(
+        )} kWh, exported ${totals.exportedKwh?.toFixed(
           3
-        )} kWh, net ${totals.netGridKwh?.toFixed(3)} kWh`
+        )} kWh, net ${totals.netKwh?.toFixed(3)} kWh`
       );
     } catch (error) {
-      console.warn(`Energy history unavailable: ${error.message}`);
+      console.warn(
+        `Energy history unavailable: ${error.message}`
+      );
     }
   }
 
