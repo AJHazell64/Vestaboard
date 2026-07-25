@@ -284,6 +284,8 @@ console.log("Artwork generated with clock protection");
   return addTime(artworkWithContent);
 }
 
+export { addContent, createGrid };
+
 export const artwork = [
   {
     name: "Hourly Generative Colour Grid",
