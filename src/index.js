@@ -295,23 +295,30 @@ function getUkTimeParts() {
 }
 
 function getDisplayMode() {
-  const { totalMinutes } = getUkTimeParts();
+  const { totalMinutes, minute } = getUkTimeParts();
 
-  if (
-    totalMinutes >= 23 * 60 + 30 ||
-    totalMinutes < 7 * 60
-  ) {
+  // Night: 23:30 - 07:00
+  if (totalMinutes >= 23 * 60 + 30 || totalMinutes < 7 * 60) {
     return "night";
   }
 
+  // Morning: 07:00 - 09:00
   if (totalMinutes < 9 * 60) {
     return "morning";
   }
 
+  // Day: 09:00 - 21:00
   if (totalMinutes < 21 * 60) {
-    return "day";
+    // First 10 minutes of every hour = quote
+    if (minute < 10) {
+      return "day_quote";
+    }
+
+    // Remaining 50 minutes = artwork
+    return "day_artwork";
   }
 
+  // Evening: 21:00 - 23:30
   return "evening";
 }
 async function main() {
