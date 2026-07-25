@@ -15,3 +15,47 @@ export const FALLBACK_QUOTES = [
   "I NEED SPACE SAID THE STAR",
   "A GROUP OF CROWS IS MURDER",
 ];
+
+export function cleanQuote(text) {
+  return text
+    .toUpperCase()
+    .replace(/[^A-Z0-9 ]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function canFitQuote(text) {
+  const words = cleanQuote(text).split(" ");
+
+  const rows = ["", "", ""];
+  let row = 0;
+
+  for (const word of words) {
+    const limit = row === 0 ? 15 : 9;
+
+    const testLine =
+      rows[row] === ""
+        ? word
+        : `${rows[row]} ${word}`;
+
+    if (testLine.length <= limit) {
+      rows[row] = testLine;
+    } else {
+      row += 1;
+
+      if (row > 2) {
+        return false;
+      }
+
+      rows[row] = word;
+    }
+  }
+
+  return true;
+}
+
+export function getFallbackQuote() {
+  return FALLBACK_QUOTES[
+    Math.floor(Math.random() * FALLBACK_QUOTES.length)
+  ];
+}
