@@ -237,10 +237,10 @@ export async function getTeslaDashboardData(accessToken) {
         dashboard.vehicle.chargingState =
           chargeState.charging_state ?? "Unknown";
 
-        dashboard.vehicle.rangeMiles =
-          chargeState.battery_range == null
-            ? null
-            : Math.round(chargeState.battery_range);
+dashboard.vehicle.rangeMiles =
+  chargeState.est_battery_range == null
+    ? null
+    : Math.round(chargeState.est_battery_range);
       } catch (error) {
         console.warn(
           `Vehicle data unavailable: ${error.message}`
