@@ -421,12 +421,11 @@ if (quote) {
 let updatedGrid = dashboardGrid;
 
 dashboardLines.forEach((line) => {
-  addContent(
-    dashboardGrid,
+  updatedGrid = addContent(
+    updatedGrid,
     line
   );
 });
-
 characterCodes = compilePattern(
   addTime(updatedGrid)
 );
