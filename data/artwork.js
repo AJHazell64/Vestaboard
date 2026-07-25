@@ -265,8 +265,6 @@ function addContent(grid, content) {
   return result;
 }
 
-  return result;
-}
 
 function addTime(grid) {
   const result = grid.map((row) => [...row]);
