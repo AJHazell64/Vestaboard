@@ -1,4 +1,5 @@
 import { compilePattern } from "../src/artworkCompiler.js";
+import { FALLBACK_QUOTES } from "./quotes.js";
 
 const COLOURS = [
   "RED",
@@ -11,23 +12,7 @@ const COLOURS = [
   "BLACK",
 ];
 
-const CONTENT = [
-  "DO IT NOW",
-  "KEEP MOVING FORWARD",
-  "SMALL STEPS COUNT",
-  "YOU HAVE GOT THIS",
-  "STAY CURIOUS ALWAYS",
-  "MAKE IT HAPPEN",
-  "BE KIND TODAY",
-  "REST IS PRODUCTIVE",
-  "YOU ARE DOING GREAT",
-  "BANANAS ARE BERRIES",
-  "OCTOPUSES HAVE 3 HEARTS",
-  "SHARKS ARE OLDER THAN TREES",
-  "HONEY NEVER SPOILS",
-  "I NEED SPACE SAID THE STAR",
-  "A GROUP OF CROWS IS MURDER",
-];
+
 
 function getLondonTimeParts() {
   const parts = new Intl.DateTimeFormat("en-GB", {
@@ -292,7 +277,7 @@ function generateArtwork() {
   ];
 
   const selectedGenerator = chooseRandom(generators);
-  const selectedContent = chooseRandom(CONTENT);
+  const selectedContent = chooseRandom(FALLBACK_QUOTES);
   const background = selectedGenerator(palette);
 
   const artworkWithContent = isFirstFifteenMinutes()
