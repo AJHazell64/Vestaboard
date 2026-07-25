@@ -3,7 +3,7 @@ import {
   refreshTeslaTokens,
   getTeslaDashboardData,
 } from "./tesla.js";
-import { artwork, addContent, createGrid } from "../data/artwork.js";
+import { artwork } from "../data/artwork.js";
 import { getQuote } from "../data/quoteProvider.js";
 function requireEnvironmentVariable(...names) {
   for (const name of names) {
@@ -383,25 +383,16 @@ if (displayMode === "night") {
     "",
     "",
   ];
-if (displayMode === "night") {
-  lines = [
-    "NIGHT MODE",
-    "",
-    "",
-  ];
-
 } else if (displayMode === "day_artwork") {
-
   characterCodes = selectedArtwork.characters;
 
-  const quoteText = await getQuote();
+const quote = await getQuote();
 
-  if (quoteText) {
-    console.log("Using quote:", quoteText);
-  }
+if (quote) {
+  console.log("Using quote:", quote);
+}
 
 } else {
-
   lines = [
     formatBettyRange(bettyRangeMiles),
     `MONSOM ${formatPercentage(
@@ -415,8 +406,8 @@ if (displayMode === "night") {
         : Number(netGridTodayKwh)
     ),
   ];
-
 }
+
 const payload = characterCodes ?? lines.join("\n");
 
 console.log("");
