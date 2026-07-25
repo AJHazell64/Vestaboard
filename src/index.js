@@ -18,6 +18,16 @@ function formatPower(watts) {
   return `${Math.abs(Number(watts) / 1000).toFixed(1)}KW`;
 }
 
+function formatEnergy(kilowattHours) {
+  const value = Number(kilowattHours);
+
+  if (!Number.isFinite(value)) {
+    return "--";
+  }
+
+  return `${Math.abs(value).toFixed(1)} KWH`;
+}
+
 function fitLine(text) {
   return String(text).toUpperCase().slice(0, 22);
 }
@@ -91,13 +101,14 @@ if (dashboard.energy) {
   lines.push(`HOME ${formatPower(dashboard.energy.homePowerWatts)}`);
   lines.push(`SOLAR ${formatPower(dashboard.energy.solarPowerWatts)}`);
 
-  const gridPower = Number(dashboard.energy.gridPowerWatts);
+  const netGridToday = Number(dashboard.energy.netGridTodayKwh);
 
-  if (Number.isFinite(gridPower)) {
-    const direction = gridPower >= 0 ? "GRID IN" : "GRID OUT";
-    lines.push(`${direction} ${formatPower(gridPower)}`);
+  if (Number.isFinite(netGridToday)) {
+    const direction = netGridToday >= 0 ? "EXPORT" : "IMPORT";
+
+    lines.push(`${direction} ${formatEnergy(netGridToday)}`);
   } else {
-    lines.push("GRID --");
+    lines.push("GRID TODAY --");
   }
 } else {
   lines.push("POWERWALL OFFLINE");
