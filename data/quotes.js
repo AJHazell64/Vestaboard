@@ -62,16 +62,10 @@ export function canFitQuote(text) {
 
 export function getFallbackQuote() {
   const validQuotes = FALLBACK_QUOTES.filter((quote) =>
-    canFitQuote(quote) &&
-    quote !== lastQuote
+    canFitQuote(quote)
   );
 
-  const quote =
-    validQuotes[
-      Math.floor(Math.random() * validQuotes.length)
-    ];
-
-  lastQuote = quote;
-
-  return quote;
+  return validQuotes[
+    Math.floor(Math.random() * validQuotes.length)
+  ];
 }
