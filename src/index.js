@@ -421,9 +421,12 @@ if (quote) {
 let updatedGrid = dashboardGrid;
 
 dashboardLines.forEach((line, index) => {
-  const characters = line
-    .toUpperCase()
-    .split("");
+const characters = line
+  .toUpperCase()
+  .split("")
+  .map((character) =>
+    character === " " ? "BLANK" : character
+  );
 
   updatedGrid[index].splice(
     0,
