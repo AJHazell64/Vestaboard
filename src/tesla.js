@@ -230,7 +230,11 @@ export async function getTeslaDashboardData(accessToken) {
 
         const vehicle = vehicleData.response ?? {};
         const chargeState = vehicle.charge_state ?? {};
-
+console.log("Tesla range fields:", {
+  battery_range: chargeState.battery_range,
+  est_battery_range: chargeState.est_battery_range,
+  ideal_battery_range: chargeState.ideal_battery_range,
+});
         dashboard.vehicle.batteryLevel =
           chargeState.battery_level ?? null;
 
