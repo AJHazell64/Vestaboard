@@ -232,12 +232,12 @@ function addContent(grid, content) {
   let row = 0;
 
   for (const word of words) {
-    const limit = row === 2 ? 10 : 15;
-
     const testLine =
       rows[row] === ""
         ? word
         : `${rows[row]} ${word}`;
+
+    const limit = row === 0 ? 15 : 9;
 
     if (testLine.length <= limit) {
       rows[row] = testLine;
@@ -253,7 +253,10 @@ function addContent(grid, content) {
   }
 
   rows.forEach((line, index) => {
-    const characters = convertTextToCharacters(line);
+    const maxCharacters = index === 0 ? 15 : 9;
+
+    const characters = convertTextToCharacters(line)
+      .slice(0, maxCharacters);
 
     result[index].splice(
       0,
@@ -264,7 +267,6 @@ function addContent(grid, content) {
 
   return result;
 }
-
 function addTime(grid) {
   const result = grid.map((row) => [...row]);
 
