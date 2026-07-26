@@ -530,8 +530,8 @@ let dayArtwork = savedDayArtwork
   ? JSON.parse(savedDayArtwork)
   : null;
 
-const currentHour = new Date().getHours();
-const currentMinute = new Date().getMinutes();
+const { hour: currentHour, minute: currentMinute } =
+  getUkTimeParts();
   
 
 if (
