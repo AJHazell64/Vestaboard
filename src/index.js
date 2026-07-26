@@ -152,7 +152,11 @@ function loadNightArtworkFile() {
   return readFileSync(nightArtworkFile, "utf8");
 }
 function saveNightArtworkFile(artworkData) {
-  return;
+  writeFileSync(
+    nightArtworkFile,
+    artworkData,
+    "utf8"
+  );
 }
 function saveNightArtwork(artworkData) {
   saveNightArtworkFile(artworkData);
