@@ -536,8 +536,7 @@ const currentMinute = new Date().getMinutes();
 
 if (
   !dayArtwork ||
-  dayArtwork.hour !== currentHour ||
- currentMinute < 15 && (!dayArtwork || dayArtwork.hour !== currentHour)
+  dayArtwork.hour !== currentHour
 ) {
   const selectedArtwork =
     artwork[Math.floor(Math.random() * artwork.length)];
