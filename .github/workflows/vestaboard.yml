@@ -3,7 +3,7 @@ run-name: Vestaboard - ${{ github.event_name }}
 
 on:
   schedule:
-    - cron: "2-59/5 * * * *"
+cron: "*/5 * * * *"
   workflow_dispatch:
 
 jobs:
