@@ -551,7 +551,7 @@ dayArtwork = {
 saveDayArtwork(JSON.stringify(dayArtwork));
 }
 
-characterCodes = compilePattern(addTime(dayArtwork.characters));
+characterCodes = dayArtwork.characters;
 
 } else {
   const dashboardGrid = createGrid();
