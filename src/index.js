@@ -213,7 +213,24 @@ function getSavedNightDate() {
   return storedValue || null;
 }
 
+function saveNightDate(date) {
+  const token = getGitHubToken();
+  const repository = process.env.GITHUB_REPOSITORY;
 
+  if (!token || !repository) {
+    return;
+  }
+
+  runGitHubCommand([
+    "variable",
+    "set",
+    "LAST_NIGHT_DATE",
+    "--body",
+    date,
+    "--repo",
+    repository,
+  ]);
+  }
 
 
 
@@ -482,27 +499,7 @@ if (savedNightArtwork) {
   characterCodes = compilePattern(nightArtwork);
   saveNightArtwork(JSON.stringify(characterCodes));
   saveNightDate(today);
-  function saveNightDate(date) {
-  const token = getGitHubToken();
-  const repository = process.env.GITHUB_REPOSITORY;
-
-  if (!token || !repository) {
-    return;
-  }
-
-  runGitHubCommand([
-    "variable",
-    "set",
-    "LAST_NIGHT_DATE",
-    "--body",
-    date,
-    "--repo",
-    repository,
-  ]);
-}
-}
-
-  }
+  
 
 else if (displayMode === "day_artwork") {
 
