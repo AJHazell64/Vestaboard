@@ -490,7 +490,7 @@ if (displayMode === "night") {
     .reverse()
     .join("-");
 
-if (savedNightArtwork) {
+if (savedNightArtwork && savedNightDate === today) {
   characterCodes = JSON.parse(savedNightArtwork);
 } else {
   const nightArtwork = addTime(
