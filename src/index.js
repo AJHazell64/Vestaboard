@@ -225,8 +225,6 @@ function saveDayArtwork(artworkData) {
     "--body",
     artworkData,
   ]);
-
-  console.log("saveDayArtwork result:", result);
 }
 
 function getSavedNightDate() {
