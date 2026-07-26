@@ -531,20 +531,27 @@ let dayArtwork = savedDayArtwork
   : null;
 
 const currentHour = new Date().getHours();
+const currentMinute = new Date().getMinutes();
+  
 
-if (!dayArtwork || dayArtwork.hour !== currentHour) {
+if (
+  !dayArtwork ||
+  dayArtwork.hour !== currentHour ||
+ currentMinute < 15 && (!dayArtwork || dayArtwork.hour !== currentHour)
+) {
   const selectedArtwork =
     artwork[Math.floor(Math.random() * artwork.length)];
 
-  dayArtwork = {
-    hour: currentHour,
-    characters: selectedArtwork.characters,
-  };
+dayArtwork = {
+  hour: currentHour,
+  minute: currentMinute,
+  characters: selectedArtwork.characters,
+};
 
 saveDayArtwork(JSON.stringify(dayArtwork));
 }
 
-characterCodes = dayArtwork.characters;
+characterCodes = compilePattern(addTime(dayArtwork.characters));
 
 } else {
   const dashboardGrid = createGrid();
