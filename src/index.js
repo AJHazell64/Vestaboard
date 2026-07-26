@@ -152,15 +152,7 @@ function loadNightArtworkFile() {
   return readFileSync(nightArtworkFile, "utf8");
 }
 function saveNightArtworkFile(artworkData) {
-  try {
-    require("fs").writeFileSync(
-      "data/night_artwork.json",
-      artworkData,
-      "utf8"
-    );
-  } catch (error) {
-    console.warn(`Unable to save night artwork file: ${error.message}`);
-  }
+  return;
 }
 function saveNightArtwork(artworkData) {
   saveNightArtworkFile(artworkData);
@@ -486,6 +478,24 @@ if (savedNightArtwork) {
   characterCodes = compilePattern(nightArtwork);
   saveNightArtwork(JSON.stringify(characterCodes));
   saveNightDate(today);
+  function saveNightDate(date) {
+  const token = getGitHubToken();
+  const repository = process.env.GITHUB_REPOSITORY;
+
+  if (!token || !repository) {
+    return;
+  }
+
+  runGitHubCommand([
+    "variable",
+    "set",
+    "LAST_NIGHT_DATE",
+    "--body",
+    date,
+    "--repo",
+    repository,
+  ]);
+}
 }
 
   }
