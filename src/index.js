@@ -218,13 +218,15 @@ function getSavedDayArtwork() {
 
 
 function saveDayArtwork(artworkData) {
-  runGitHubCommand([
+  const result = runGitHubCommand([
     "variable",
     "set",
     "LAST_DAY_ARTWORK",
     "--body",
     artworkData,
   ]);
+
+  console.log("saveDayArtwork result:", result);
 }
 
 function getSavedNightDate() {
