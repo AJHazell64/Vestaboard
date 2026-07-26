@@ -464,8 +464,6 @@ const nightArtwork = addTime(
 );
 
 characterCodes = compilePattern(nightArtwork);
-
-characterCodes = compilePattern(nightArtwork);
   }
 }
 
