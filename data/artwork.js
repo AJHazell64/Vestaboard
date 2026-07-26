@@ -220,7 +220,9 @@ function getCurrentTimeCharacters() {
 }
 
 function isFirstFifteenMinutes() {
-  return true;
+  const values = getLondonTimeParts();
+
+  return Number(values.minute) < 15;
 }
 function convertTextToCharacters(text) {
   return [...text.toUpperCase()].map(
@@ -296,14 +298,10 @@ function generateArtwork() {
   ];
 
   const selectedGenerator = chooseRandom(generators);
-  const selectedContent = chooseRandom(FALLBACK_QUOTES);
-  const background = selectedGenerator(palette);
+const background = selectedGenerator(palette);
 
-  const artworkWithContent = isFirstFifteenMinutes()
-    ? addContent(background, selectedContent)
-    : background;
 console.log("Artwork generated with clock protection");
-  return addTime(artworkWithContent);
+return addTime(background);
 }
 
 export {
