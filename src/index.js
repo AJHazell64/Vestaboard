@@ -208,45 +208,9 @@ function getSavedNightDate() {
   return storedValue || null;
 }
 
-function saveNightArtwork(artworkData) {
-  saveNightArtworkFile(artworkData);
-}
-
-function saveNightDate(date) {
-  const token = getGitHubToken();
-  const repository = process.env.GITHUB_REPOSITORY;
 
 
 
-  try {
-    execFileSync(
-      "gh",
-      [
-        "variable",
-        "set",
-        "LAST_NIGHT_DATE",
-        "--body",
-        date,
-        "--repo",
-        repository,
-      ],
-      {
-        encoding: "utf8",
-        env: {
-          ...process.env,
-          GH_TOKEN: token,
-        },
-        stdio: ["ignore", "pipe", "pipe"],
-      }
-    );
-
-    console.log("Saved night date");
-  } catch (error) {
-    console.warn(
-      `Unable to save night date: ${error.message}`
-    );
-  }
-}
 
 function saveBettyRangeMiles(rangeMiles) {
   if (
