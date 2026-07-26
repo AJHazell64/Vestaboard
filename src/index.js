@@ -499,8 +499,8 @@ if (savedNightArtwork) {
   characterCodes = compilePattern(nightArtwork);
   saveNightArtwork(JSON.stringify(characterCodes));
   saveNightDate(today);
-  
-
+}
+}
 else if (displayMode === "day_artwork") {
 
 const dayArtworkFile = "./data/dayArtwork.json";
