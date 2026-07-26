@@ -465,7 +465,6 @@ const nightArtwork = addTime(
 
 characterCodes = compilePattern(nightArtwork);
   }
-}
 
 else if (displayMode === "day_artwork") {
 
