@@ -187,7 +187,15 @@ function saveNightArtwork(artworkData) {
   }
 }
 
+function getSavedNightArtwork() {
+  const storedValue = runGitHubCommand([
+    "variable",
+    "get",
+    "LAST_NIGHT_ARTWORK",
+  ]);
 
+  return storedValue || null;
+}
 
 function getSavedNightDate() {
   const storedValue = runGitHubCommand([
