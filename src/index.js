@@ -445,7 +445,7 @@ let lines;
   let characterCodes;
 
 if (displayMode === "night") {
-  const savedNightArtwork = null;
+  const savedNightArtwork = getSavedNightArtwork();
   const savedNightDate = getSavedNightDate();
 
   const today = new Intl.DateTimeFormat("en-GB", {
@@ -459,11 +459,17 @@ if (displayMode === "night") {
     .reverse()
     .join("-");
 
-const nightArtwork = addTime(
-  generateNightArtwork()
-);
+if (savedNightArtwork) {
+  characterCodes = JSON.parse(savedNightArtwork);
+} else {
+  const nightArtwork = addTime(
+    generateNightArtwork()
+  );
+  characterCodes = compilePattern(nightArtwork);
+  saveNightArtwork(JSON.stringify(characterCodes));
+  saveNightDate(today);
+}
 
-characterCodes = compilePattern(nightArtwork);
   }
 
 else if (displayMode === "day_artwork") {
