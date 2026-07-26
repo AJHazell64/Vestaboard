@@ -203,6 +203,27 @@ function getSavedNightArtwork() {
   return storedValue || null;
 }
 
+function getSavedDayArtwork() {
+  const storedValue = runGitHubCommand([
+    "variable",
+    "get",
+    "LAST_DAY_ARTWORK",
+  ]);
+
+  return storedValue || null;
+}
+
+
+function saveDayArtwork(artworkData) {
+  runGitHubCommand([
+    "variable",
+    "set",
+    "LAST_DAY_ARTWORK",
+    "--body",
+    artworkData,
+  ]);
+}
+
 function getSavedNightDate() {
   const storedValue = runGitHubCommand([
     "variable",
@@ -503,13 +524,11 @@ if (savedNightArtwork && savedNightDate === today) {
 }
 else if (displayMode === "day_artwork") {
 
-const dayArtworkFile = "./data/dayArtwork.json";
+const savedDayArtwork = getSavedDayArtwork();
 
-let dayArtwork = null;
-
-if (existsSync(dayArtworkFile)) {
-  dayArtwork = JSON.parse(readFileSync(dayArtworkFile, "utf8"));
-}
+let dayArtwork = savedDayArtwork
+  ? JSON.parse(savedDayArtwork)
+  : null;
 
 const currentHour = new Date().getHours();
 
@@ -522,11 +541,7 @@ if (!dayArtwork || dayArtwork.hour !== currentHour) {
     characters: selectedArtwork.characters,
   };
 
-  writeFileSync(
-    dayArtworkFile,
-    JSON.stringify(dayArtwork),
-    "utf8"
-  );
+saveDayArtwork(JSON.stringify(dayArtwork));
 }
 
 characterCodes = dayArtwork.characters;
