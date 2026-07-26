@@ -187,15 +187,6 @@ function saveNightArtwork(artworkData) {
   }
 }
 
-function getSavedNightArtwork() {
-  const storedValue = runGitHubCommand([
-    "variable",
-    "get",
-    "LAST_NIGHT_ARTWORK",
-  ]);
-
-  return storedValue || null;
-}
 
 
 function getSavedNightDate() {
@@ -454,7 +445,7 @@ let lines;
   let characterCodes;
 
 if (displayMode === "night") {
-  const savedNightArtwork = getSavedNightArtwork();
+  const savedNightArtwork = null;
   const savedNightDate = getSavedNightDate();
 
   const today = new Intl.DateTimeFormat("en-GB", {
@@ -468,12 +459,11 @@ if (displayMode === "night") {
     .reverse()
     .join("-");
 
-if (savedNightArtwork) {
-    characterCodes = JSON.parse(savedNightArtwork);
-  } else {
 const nightArtwork = addTime(
   generateNightArtwork()
 );
+
+characterCodes = compilePattern(nightArtwork);
 
 characterCodes = compilePattern(nightArtwork);
   }
