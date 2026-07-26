@@ -556,14 +556,20 @@ saveDayArtwork(JSON.stringify(dayArtwork));
 
 characterCodes = dayArtwork.characters.map((row) => [...row]);
 
-const clockCodes = compilePattern([
-  getCurrentTimeCharacters(),
-])[0];
+const clockGrid = createGrid();
+
+clockGrid[2].splice(
+  10,
+  5,
+  ...getCurrentTimeCharacters()
+);
+
+const clockCodes = compilePattern(clockGrid)[2];
 
 characterCodes[2].splice(
   10,
   5,
-  ...clockCodes
+  ...clockCodes.slice(10, 15)
 );
 
 } else {
