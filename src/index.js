@@ -506,15 +506,33 @@ if (savedNightArtwork) {
 
 else if (displayMode === "day_artwork") {
 
-const selectedArtwork =
-  artwork[Math.floor(Math.random() * artwork.length)];
-  characterCodes = selectedArtwork.characters;
+const dayArtworkFile = "./data/dayArtwork.json";
 
-const quote = await getQuote();
+let dayArtwork = null;
 
-if (quote) {
-  console.log("Using quote:", quote);
+if (existsSync(dayArtworkFile)) {
+  dayArtwork = JSON.parse(readFileSync(dayArtworkFile, "utf8"));
 }
+
+const currentHour = new Date().getHours();
+
+if (!dayArtwork || dayArtwork.hour !== currentHour) {
+  const selectedArtwork =
+    artwork[Math.floor(Math.random() * artwork.length)];
+
+  dayArtwork = {
+    hour: currentHour,
+    characters: selectedArtwork.characters,
+  };
+
+  writeFileSync(
+    dayArtworkFile,
+    JSON.stringify(dayArtwork),
+    "utf8"
+  );
+}
+
+characterCodes = dayArtwork.characters;
 
 } else {
   const dashboardGrid = createGrid();
