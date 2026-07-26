@@ -57,7 +57,10 @@ function runGitHubCommand(argumentsList) {
         stdio: ["ignore", "pipe", "pipe"],
       }
     ).trim();
-  } catch {
+  } catch (error) {
+    console.error(
+      `GitHub command failed: ${error.stderr?.toString() || error.message}`
+    );
     return null;
   }
 }
