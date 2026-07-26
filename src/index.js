@@ -9,6 +9,7 @@ import {
   addContent,
   createGrid,
   addTime,
+  getCurrentTimeCharacters,
   generateNightArtwork,
 } from "../data/artwork.js";
 import { compilePattern } from "./artworkCompiler.js";
