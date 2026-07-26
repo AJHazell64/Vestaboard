@@ -152,12 +152,49 @@ function loadNightArtworkFile() {
   return readFileSync(nightArtworkFile, "utf8");
 }
 
-function saveNightArtworkFile(artworkData) {
-  writeFileSync(nightArtworkFile, artworkData, "utf8");
+function saveNightArtwork(artworkData) {
+  saveNightArtworkFile(artworkData);
+
+  const token = getGitHubToken();
+  const repository = process.env.GITHUB_REPOSITORY;
+
+  if (!token || !repository) {
+    return;
+  }
+
+  try {
+    execFileSync(
+      "gh",
+      [
+        "variable",
+        "set",
+        "LAST_NIGHT_ARTWORK",
+        "--body",
+        artworkData,
+        "--repo",
+        repository,
+      ],
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          GH_TOKEN: token,
+        },
+      }
+    );
+  } catch (error) {
+    console.warn(`Unable to save night artwork: ${error.message}`);
+  }
 }
 
 function getSavedNightArtwork() {
-  return loadNightArtworkFile();
+  const storedValue = runGitHubCommand([
+    "variable",
+    "get",
+    "LAST_NIGHT_ARTWORK",
+  ]);
+
+  return storedValue || null;
 }
 
 
