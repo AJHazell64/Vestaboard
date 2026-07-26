@@ -151,7 +151,17 @@ function loadNightArtworkFile() {
 
   return readFileSync(nightArtworkFile, "utf8");
 }
-
+function saveNightArtworkFile(artworkData) {
+  try {
+    require("fs").writeFileSync(
+      "data/night_artwork.json",
+      artworkData,
+      "utf8"
+    );
+  } catch (error) {
+    console.warn(`Unable to save night artwork file: ${error.message}`);
+  }
+}
 function saveNightArtwork(artworkData) {
   saveNightArtworkFile(artworkData);
 
