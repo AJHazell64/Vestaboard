@@ -312,10 +312,13 @@ export {
   generateNightArtwork,
 };
 
+const generatedArtwork = generateArtwork();
+
 export const artwork = [
   {
     name: "Hourly Generative Colour Grid",
     category: "generated",
-    characters: compilePattern(generateArtwork()),
+    rawCharacters: generatedArtwork,
+    characters: compilePattern(generatedArtwork),
   },
 ];
