@@ -527,50 +527,62 @@ if (savedNightArtwork && savedNightDate === today) {
 }
 }
 else if (displayMode === "day_artwork") {
+  const { hour: currentHour, minute: currentMinute } =
+    getUkTimeParts();
 
-const savedDayArtwork = getSavedDayArtwork();
+  if (currentMinute < 15) {
+    const quote = await getQuote();
 
-let dayArtwork = savedDayArtwork
-  ? JSON.parse(savedDayArtwork)
-  : null;
+    characterCodes = compilePattern(
+      addTime(
+        addContent(
+          createGrid(),
+          quote
+        )
+      )
+    );
+  } else {
+    const savedDayArtwork = getSavedDayArtwork();
 
-const { hour: currentHour, minute: currentMinute } =
-  getUkTimeParts();
-  
+    let dayArtwork = savedDayArtwork
+      ? JSON.parse(savedDayArtwork)
+      : null;
 
-if (
-  !dayArtwork ||
-  dayArtwork.hour !== currentHour
-) {
-  const selectedArtwork =
-    artwork[Math.floor(Math.random() * artwork.length)];
+    if (
+      !dayArtwork ||
+      dayArtwork.hour !== currentHour
+    ) {
+      const selectedArtwork =
+        artwork[Math.floor(Math.random() * artwork.length)];
 
-dayArtwork = {
-  hour: currentHour,
-  minute: currentMinute,
-  characters: selectedArtwork.characters,
-};
+      dayArtwork = {
+        hour: currentHour,
+        minute: currentMinute,
+        characters: selectedArtwork.characters,
+      };
 
-saveDayArtwork(JSON.stringify(dayArtwork));
-}
+      saveDayArtwork(JSON.stringify(dayArtwork));
+    }
 
-characterCodes = dayArtwork.characters.map((row) => [...row]);
+    characterCodes =
+      dayArtwork.characters.map((row) => [...row]);
 
-const clockGrid = createGrid();
+    const clockGrid = createGrid();
 
-clockGrid[2].splice(
-  10,
-  5,
-  ...getCurrentTimeCharacters()
-);
+    clockGrid[2].splice(
+      10,
+      5,
+      ...getCurrentTimeCharacters()
+    );
 
-const clockCodes = compilePattern(clockGrid)[2];
+    const clockCodes = compilePattern(clockGrid)[2];
 
-characterCodes[2].splice(
-  10,
-  5,
-  ...clockCodes.slice(10, 15)
-);
+    characterCodes[2].splice(
+      10,
+      5,
+      ...clockCodes.slice(10, 15)
+    );
+  }
 
 } else {
   const dashboardGrid = createGrid();
