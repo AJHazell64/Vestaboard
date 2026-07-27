@@ -20,7 +20,7 @@ export function canFitQuote(text) {
   const words = cleanQuote(text).split(" ");
 
   const rows = ["", "", ""];
-  const limits = [15, 9, 5];
+  const limits = [15, 9, 9];
 
   let row = 0;
 
