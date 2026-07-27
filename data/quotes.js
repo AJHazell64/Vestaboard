@@ -1,20 +1,11 @@
+import { MOTIVATIONAL_QUOTES } from "./quotes-motivational.js";
+import { FUNNY_QUOTES } from "./quotes-funny.js";
+import { FACT_QUOTES } from "./quotes-facts.js";
+
 export const FALLBACK_QUOTES = [
-  "THIS QUOTE IS DEFINITELY TOO LONG TO FIT",
-  "DO IT NOW",
-  "KEEP MOVING FORWARD",
-  "SMALL STEPS COUNT",
-  "YOU HAVE GOT THIS",
-  "STAY CURIOUS ALWAYS",
-  "MAKE IT HAPPEN",
-  "BE KIND TODAY",
-  "REST IS PRODUCTIVE",
-  "YOU ARE DOING GREAT",
-  "BANANAS ARE BERRIES",
-  "OCTOPUSES HAVE 3 HEARTS",
-  "SHARKS ARE OLDER THAN TREES",
-  "HONEY NEVER SPOILS",
-  "I NEED SPACE SAID THE STAR",
-  "A GROUP OF CROWS IS MURDER",
+  ...MOTIVATIONAL_QUOTES,
+  ...FUNNY_QUOTES,
+  ...FACT_QUOTES,
 ];
 
 export function cleanQuote(text) {
