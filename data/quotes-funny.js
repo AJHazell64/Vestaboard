@@ -77,5 +77,21 @@ export const FUNNY_QUOTES = [
   "this is sparta!",
   "i drink and i know things",
   "yippee-ki-yay",
-  "run, Forrest, run!"
+  "run, Forrest, run!",
+  "all roads lead to here",
+  "Adho Mukha Svanasana",
+  "Guten Tag",
+  "Space may be the final frontier",
+  "East Side love is living on the West End",
+  "Soft spoken with a broken jaw",
+  "Tell me when it kicks in",
+  "gonna be the one who saves me",
+  "no place i'd rather be",
+  "i won't be ignored",
+  "mo money, mo problems",
+  "left to my own devices",
+  "i want you to be happier",
+  "we all know what's going down"
+  "gone and sank th worlds wolf"
+  "of dentists and the dark",
 ];
