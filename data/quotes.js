@@ -1,9 +1,7 @@
-import { MOTIVATIONAL_QUOTES } from "./quotes-motivational.js";
 import { FUNNY_QUOTES } from "./quotes-funny.js";
 import { FACT_QUOTES } from "./quotes-facts.js";
 
 export const FALLBACK_QUOTES = [
-  ...MOTIVATIONAL_QUOTES,
   ...FUNNY_QUOTES,
   ...FACT_QUOTES,
 ];
