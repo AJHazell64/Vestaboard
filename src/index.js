@@ -583,11 +583,10 @@ if (true) {
       !quoteData ||
       quoteData.hour !== currentHour
     ) {
-      quoteData = {
-        hour: currentHour,
-        quote: await getQuote(),
-      };
-
+quoteData = {
+  hour: -1,
+  quote: await getQuote(),
+};
       saveDayQuote(JSON.stringify(quoteData));
     }
 
