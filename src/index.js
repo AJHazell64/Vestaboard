@@ -9,6 +9,7 @@ import {
   addContent,
   createGrid,
   addTime,
+  addDayComplete,
   getCurrentTimeCharacters,
   generateNightArtwork,
 } from "../data/artwork.js";
@@ -460,6 +461,44 @@ function getDisplayMode() {
   // Evening: 21:00 - 23:30
   return "evening";
 }
+
+function getNightDate() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
+
+  const values = Object.fromEntries(
+    parts.map(({ type, value }) => [type, value])
+  );
+
+  const date = new Date(
+    Date.UTC(
+      Number(values.year),
+      Number(values.month) - 1,
+      Number(values.day)
+    )
+  );
+
+  if (Number(values.hour) < 7) {
+    date.setUTCDate(date.getUTCDate() - 1);
+  }
+
+  return date.toISOString().slice(0, 10);
+}
+
+function getDaysAlive() {
+  const birth = new Date("1989-06-21T22:24:00+01:00");
+
+  return Math.floor(
+    (Date.now() - birth.getTime()) /
+      (24 * 60 * 60 * 1000)
+  );
+}
 async function main() {
   console.log(
     "Refreshing Tesla access token"
@@ -519,31 +558,47 @@ let lines;
   let characterCodes;
 
 if (displayMode === "night") {
+  const { hour: currentHour } = getUkTimeParts();
+
   const savedNightArtwork = getSavedNightArtwork();
   const savedNightDate = getSavedNightDate();
+  const nightDate = getNightDate();
 
-  const today = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/London",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  })
-    .format(new Date())
-    .split("/")
-    .reverse()
-    .join("-");
+  let nightArtworkData = savedNightArtwork
+    ? JSON.parse(savedNightArtwork)
+    : null;
 
-if (savedNightArtwork && savedNightDate === today) {
-  characterCodes = JSON.parse(savedNightArtwork);
-} else {
-  const nightArtwork = addTime(
-    generateNightArtwork()
+  if (
+    !nightArtworkData ||
+    savedNightDate !== nightDate ||
+    !nightArtworkData.rawCharacters
+  ) {
+    nightArtworkData = {
+      rawCharacters: generateNightArtwork(),
+    };
+
+    saveNightArtwork(
+      JSON.stringify(nightArtworkData)
+    );
+
+    saveNightDate(nightDate);
+  }
+
+  const nightDisplay =
+    currentHour >= 0 && currentHour < 7
+      ? addDayComplete(
+          nightArtworkData.rawCharacters,
+          getDaysAlive()
+        )
+      : addTime(
+          nightArtworkData.rawCharacters
+        );
+
+  characterCodes = compilePattern(
+    nightDisplay
   );
-  characterCodes = compilePattern(nightArtwork);
-  saveNightArtwork(JSON.stringify(characterCodes));
-  saveNightDate(today);
 }
-}
+
 else if (displayMode === "day_artwork") {
   const { hour: currentHour, minute: currentMinute } =
     getUkTimeParts();
