@@ -284,6 +284,32 @@ function addTime(grid) {
 
   return result;
 }
+function addDayComplete(grid, dayNumber) {
+  const result = grid.map((row) => [...row]);
+
+  const lines = [
+    "DAY",
+    String(dayNumber),
+    "COMPLETE",
+  ];
+
+  lines.forEach((line, rowIndex) => {
+    const characters =
+      convertTextToCharacters(line);
+
+    const startColumn = Math.floor(
+      (15 - characters.length) / 2
+    );
+
+    result[rowIndex].splice(
+      startColumn,
+      characters.length,
+      ...characters
+    );
+  });
+
+  return result;
+}
 function generateArtwork() {
   const palette = choosePalette();
 
@@ -309,6 +335,7 @@ export {
   createGrid,
   getCurrentTimeCharacters,
   addTime,
+  addDayComplete,
   generateNightArtwork,
 };
 
