@@ -297,9 +297,7 @@ function addDayComplete(grid, dayNumber) {
     const characters =
       convertTextToCharacters(line);
 
-    const startColumn = Math.floor(
-      (15 - characters.length) / 2
-    );
+const startColumn = 0;
 
     result[rowIndex].splice(
       startColumn,
