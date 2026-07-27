@@ -548,78 +548,65 @@ else if (displayMode === "day_artwork") {
   const { hour: currentHour, minute: currentMinute } =
     getUkTimeParts();
 
-if (currentMinute < 15) {
-  const savedQuoteData = getSavedDayQuote();
+  const savedDayArtwork = getSavedDayArtwork();
 
-  let quoteData = savedQuoteData
-    ? JSON.parse(savedQuoteData)
+  let dayArtwork = savedDayArtwork
+    ? JSON.parse(savedDayArtwork)
     : null;
 
   if (
-    !quoteData ||
-    quoteData.hour !== currentHour
+    !dayArtwork ||
+    dayArtwork.hour !== currentHour ||
+    !dayArtwork.rawCharacters
   ) {
-    quoteData = {
+    const selectedArtwork =
+      artwork[Math.floor(Math.random() * artwork.length)];
+
+    dayArtwork = {
       hour: currentHour,
-      quote: await getQuote(),
+      minute: currentMinute,
+      rawCharacters: selectedArtwork.rawCharacters,
+      characters: selectedArtwork.characters,
     };
 
-    saveDayQuote(JSON.stringify(quoteData));
+    saveDayArtwork(JSON.stringify(dayArtwork));
   }
 
-  characterCodes = compilePattern(
-    addTime(
-      addContent(
-        createGrid(),
-        quoteData.quote
-      )
-    )
-  );
-  
-  } else {
-    const savedDayArtwork = getSavedDayArtwork();
+  if (currentMinute < 15) {
+    const savedQuoteData = getSavedDayQuote();
 
-    let dayArtwork = savedDayArtwork
-      ? JSON.parse(savedDayArtwork)
+    let quoteData = savedQuoteData
+      ? JSON.parse(savedQuoteData)
       : null;
 
     if (
-      !dayArtwork ||
-      dayArtwork.hour !== currentHour
+      !quoteData ||
+      quoteData.hour !== currentHour
     ) {
-      const selectedArtwork =
-        artwork[Math.floor(Math.random() * artwork.length)];
-
-      dayArtwork = {
+      quoteData = {
         hour: currentHour,
-        minute: currentMinute,
-        characters: selectedArtwork.characters,
+        quote: await getQuote(),
       };
 
-      saveDayArtwork(JSON.stringify(dayArtwork));
+      saveDayQuote(JSON.stringify(quoteData));
     }
 
-    characterCodes =
-      dayArtwork.characters.map((row) => [...row]);
-
-    const clockGrid = createGrid();
-
-    clockGrid[2].splice(
-      10,
-      5,
-      ...getCurrentTimeCharacters()
+    characterCodes = compilePattern(
+      addTime(
+        addContent(
+          dayArtwork.rawCharacters,
+          quoteData.quote
+        )
+      )
     );
-
-    const clockCodes = compilePattern(clockGrid)[2];
-
-    characterCodes[2].splice(
-      10,
-      5,
-      ...clockCodes.slice(10, 15)
+  } else {
+    characterCodes = compilePattern(
+      addTime(dayArtwork.rawCharacters)
     );
   }
-
-} else {
+}
+  
+ else {
   const dashboardGrid = createGrid();
 
   const dashboardLines = [
