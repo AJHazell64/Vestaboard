@@ -91,7 +91,11 @@ export const FUNNY_QUOTES = [
   "mo money, mo problems",
   "left to my own devices",
   "i want you to be happier",
-  "we all know what's going down"
-  "gone and sank th worlds wolf"
+  "we all know what's going down",
+  "gone and sank th worlds wolf",
   "of dentists and the dark",
+  "hakuna matata",
+  "expecto patronum",
+  "finish him",
+  "eat my shorts"  
 ];
