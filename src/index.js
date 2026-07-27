@@ -227,7 +227,25 @@ function saveDayArtwork(artworkData) {
     artworkData,
   ]);
 }
+function getSavedDayQuote() {
+  const storedValue = runGitHubCommand([
+    "variable",
+    "get",
+    "LAST_DAY_QUOTE",
+  ]);
 
+  return storedValue || null;
+}
+
+function saveDayQuote(quoteData) {
+  runGitHubCommand([
+    "variable",
+    "set",
+    "LAST_DAY_QUOTE",
+    "--body",
+    quoteData,
+  ]);
+}
 function getSavedNightDate() {
   const storedValue = runGitHubCommand([
     "variable",
@@ -530,17 +548,34 @@ else if (displayMode === "day_artwork") {
   const { hour: currentHour, minute: currentMinute } =
     getUkTimeParts();
 
-  if (currentMinute < 15) {
-    const quote = await getQuote();
+if (currentMinute < 15) {
+  const savedQuoteData = getSavedDayQuote();
 
-    characterCodes = compilePattern(
-      addTime(
-        addContent(
-          createGrid(),
-          quote
-        )
+  let quoteData = savedQuoteData
+    ? JSON.parse(savedQuoteData)
+    : null;
+
+  if (
+    !quoteData ||
+    quoteData.hour !== currentHour
+  ) {
+    quoteData = {
+      hour: currentHour,
+      quote: await getQuote(),
+    };
+
+    saveDayQuote(JSON.stringify(quoteData));
+  }
+
+  characterCodes = compilePattern(
+    addTime(
+      addContent(
+        createGrid(),
+        quoteData.quote
       )
-    );
+    )
+  );
+  
   } else {
     const savedDayArtwork = getSavedDayArtwork();
 
