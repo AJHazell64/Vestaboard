@@ -572,7 +572,7 @@ else if (displayMode === "day_artwork") {
     saveDayArtwork(JSON.stringify(dayArtwork));
   }
 
-  if (currentMinute < 15) {
+if (true) {
     const savedQuoteData = getSavedDayQuote();
 
     let quoteData = savedQuoteData
