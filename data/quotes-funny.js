@@ -111,8 +111,14 @@ export const FUNNY_QUOTES = [
   "Oh, hamburgers!",
   "They took our jobs!",
   "King in the castle!",
-  "stay classy",
+  "stay classy, san diego",
   "THIS RAIL IS VERY DIRTY",
   "THIS ONE TIME AT BAND CAMP",
-  "east side love living on west end"
+  "east side love living on west end",
+  "screw you guys",
+  "i'm super cereal",
+  "o my god, they killed kenny",
+  "everything is legal in mexico",
+  "i love lamp",
+  "boats and hoes"
 ];
