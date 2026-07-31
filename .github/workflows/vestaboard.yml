@@ -107,7 +107,27 @@ jobs:
               );
               continue;
             }
+            const cleanedText = cleanQuote(text);
 
+            if (!canFitQuote(text)) {
+              console.log({
+                updateId: update.update_id,
+                status: "rejected - does not fit",
+                text,
+              });
+
+              continue;
+            }
+
+            if (existingCleanQuotes.has(cleanedText)) {
+              console.log({
+                updateId: update.update_id,
+                status: "rejected - duplicate",
+                text,
+              });
+
+              continue;
+            }
             console.log({
               updateId: update.update_id,
               status: "authorised quote candidate",
