@@ -627,40 +627,35 @@ else if (displayMode === "day_artwork") {
     saveDayArtwork(JSON.stringify(dayArtwork));
   }
 
-if (currentMinute < 15) {
-    const savedQuoteData = getSavedDayQuote();
+  const savedQuoteData = getSavedDayQuote();
 
-    let quoteData = savedQuoteData
-      ? JSON.parse(savedQuoteData)
-      : null;
+  let quoteData = savedQuoteData
+    ? JSON.parse(savedQuoteData)
+    : null;
 
-    if (
-      !quoteData ||
-      quoteData.hour !== currentHour
-    ) {
-quoteData = {
-  hour: currentHour,
-  quote: await getQuote(),
-};
-      saveDayQuote(JSON.stringify(quoteData));
-    }
+  if (
+    !quoteData ||
+    quoteData.hour !== currentHour
+  ) {
+    quoteData = {
+      hour: currentHour,
+      quote: await getQuote(),
+    };
 
-    characterCodes = compilePattern(
-      addTime(
-        addContent(
-          dayArtwork.rawCharacters,
-          quoteData.quote
-        )
-      )
-    );
-  } else {
-    characterCodes = compilePattern(
-      addTime(dayArtwork.rawCharacters)
-    );
+    saveDayQuote(JSON.stringify(quoteData));
   }
+
+    characterCodes = compilePattern(
+    addTime(
+      addContent(
+        dayArtwork.rawCharacters,
+        quoteData.quote
+      )
+    )
+  );
 }
-  
- else {
+
+else {
   const dashboardGrid = createGrid();
 
   const dashboardLines = [
