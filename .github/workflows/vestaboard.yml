@@ -31,10 +31,34 @@ jobs:
           import { execFileSync } from "node:child_process";
           import { readFileSync, writeFileSync } from "node:fs";
           import {
-          canFitQuote,
-          cleanQuote,
-          FALLBACK_QUOTES,
+            canFitQuote,
+            cleanQuote,
+            FALLBACK_QUOTES,
           } from "./data/quotes.js";
+
+          async function sendTelegramReply(chatId, text) {
+            const response = await fetch(
+              `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  chat_id: chatId,
+                  text,
+                }),
+              }
+            );
+
+            const data = await response.json();
+
+            if (!data.ok) {
+              throw new Error(
+                `Telegram reply failed: ${data.description}`
+              );
+            }
+          }
 
           const lastUpdateId =
             Number(process.env.LAST_TELEGRAM_UPDATE_ID) || 0;
@@ -75,13 +99,13 @@ jobs:
           } catch {
             telegramQuotes = [];
           }
+
           const existingCleanQuotes = new Set(
             [
               ...FALLBACK_QUOTES,
               ...telegramQuotes,
             ].map((quote) => cleanQuote(quote))
           );
-
 
           for (const update of updates) {
             const message =
@@ -107,6 +131,7 @@ jobs:
               );
               continue;
             }
+
             const cleanedText = cleanQuote(text);
 
             if (!canFitQuote(text)) {
@@ -115,6 +140,11 @@ jobs:
                 status: "rejected - does not fit",
                 text,
               });
+
+              await sendTelegramReply(
+                message.chat.id,
+                "❌ Rejected: too long"
+              );
 
               continue;
             }
@@ -125,6 +155,11 @@ jobs:
                 status: "rejected - duplicate",
                 text,
               });
+
+              await sendTelegramReply(
+                message.chat.id,
+                "❌ Rejected: duplicate"
+              );
 
               continue;
             }
@@ -142,6 +177,11 @@ jobs:
               quotesFile,
               JSON.stringify(telegramQuotes, null, 2) + "\n",
               "utf8"
+            );
+
+            await sendTelegramReply(
+              message.chat.id,
+              "✅ Added"
             );
           }
 
@@ -171,6 +211,7 @@ jobs:
             );
           }
           EOF
+
       - name: Save Telegram quotes
         run: |
           if git diff --quiet -- data/telegram-quotes.json; then
@@ -184,6 +225,7 @@ jobs:
           git add data/telegram-quotes.json
           git commit -m "Add Telegram quote"
           git push
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
