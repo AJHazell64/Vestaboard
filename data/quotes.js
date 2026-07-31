@@ -363,10 +363,14 @@ function getTelegramQuotes() {
 export function getValidFallbackQuotes() {
   const seenQuotes = new Set();
 
-  const allQuotes = [
-    ...FALLBACK_QUOTES,
-    ...getTelegramQuotes(),
-  ];
+ const allQuotes = [
+  ...FALLBACK_QUOTES,
+  ...getTelegramQuotes(),
+];
+
+console.log(
+  `Loaded ${allQuotes.length} total quotes (${getTelegramQuotes().length} from Telegram)`
+);
 
   return allQuotes.filter((quote) => {
     if (!canFitQuote(quote)) {
