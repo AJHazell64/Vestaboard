@@ -171,7 +171,19 @@ jobs:
             );
           }
           EOF
+      - name: Save Telegram quotes
+        run: |
+          if git diff --quiet -- data/telegram-quotes.json; then
+            echo "No Telegram quotes to save"
+            exit 0
+          fi
 
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add data/telegram-quotes.json
+          git commit -m "Add Telegram quote"
+          git push
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
