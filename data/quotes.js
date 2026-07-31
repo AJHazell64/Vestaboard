@@ -334,10 +334,27 @@ export function canFitQuote(text) {
   return true;
 }
 
+export function getValidFallbackQuotes() {
+  const seenQuotes = new Set();
+
+  return FALLBACK_QUOTES.filter((quote) => {
+    if (!canFitQuote(quote)) {
+      return false;
+    }
+
+    const cleanedQuote = cleanQuote(quote);
+
+    if (seenQuotes.has(cleanedQuote)) {
+      return false;
+    }
+
+    seenQuotes.add(cleanedQuote);
+    return true;
+  });
+}
+
 export function getFallbackQuote() {
-  const validQuotes = FALLBACK_QUOTES.filter((quote) =>
-    canFitQuote(quote)
-  );
+  const validQuotes = getValidFallbackQuotes();
 
   return validQuotes[
     Math.floor(Math.random() * validQuotes.length)
