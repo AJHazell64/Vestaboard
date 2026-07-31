@@ -29,10 +29,7 @@ jobs:
         run: |
           node --input-type=module <<'EOF'
           import { execFileSync } from "node:child_process";
-import {
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+          import { readFileSync, writeFileSync } from "node:fs";
 
           const lastUpdateId =
             Number(process.env.LAST_TELEGRAM_UPDATE_ID) || 0;
