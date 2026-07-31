@@ -247,6 +247,26 @@ function saveDayQuote(quoteData) {
     quoteData,
   ]);
 }
+function getSavedQuoteQueue() {
+  const storedValue = runGitHubCommand([
+    "variable",
+    "get",
+    "QUOTE_QUEUE",
+  ]);
+
+  return storedValue || "[]";
+}
+
+function saveQuoteQueue(queue) {
+  runGitHubCommand([
+    "variable",
+    "set",
+    "QUOTE_QUEUE",
+    "--body",
+    JSON.stringify(queue),
+  ]);
+}
+
 function getSavedNightDate() {
   const storedValue = runGitHubCommand([
     "variable",
