@@ -75,6 +75,13 @@ jobs:
           } catch {
             telegramQuotes = [];
           }
+          const existingCleanQuotes = new Set(
+            [
+              ...FALLBACK_QUOTES,
+              ...telegramQuotes,
+            ].map((quote) => cleanQuote(quote))
+          );
+
 
           for (const update of updates) {
             const message =
