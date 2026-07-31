@@ -15,6 +15,10 @@ jobs:
         run: |
           echo "Triggered by: ${{ github.event_name }}"
           echo "Time (UTC): $(date -u)"
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Check Telegram updates
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -107,9 +111,6 @@ jobs:
             );
           }
           EOF
-          
-      - name: Check out repository
-        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -128,6 +129,7 @@ jobs:
           TESLA_REFRESH_TOKEN: ${{ secrets.TESLA_REFRESH_TOKEN }}
           GH_PAT: ${{ secrets.GH_PAT }}
           LAST_BETTY_RANGE_MILES: ${{ vars.LAST_BETTY_RANGE_MILES }}
+
       - name: Save replacement Tesla refresh token
         if: ${{ success() && hashFiles('tesla-refresh-token.txt') != '' }}
         run: |
