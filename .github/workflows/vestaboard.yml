@@ -60,6 +60,21 @@ jobs:
           );
 
           const allowedChatId = 397818738;
+          const quotesFile = "data/telegram-quotes.json";
+
+let telegramQuotes;
+
+try {
+  telegramQuotes = JSON.parse(
+    readFileSync(quotesFile, "utf8")
+  );
+
+  if (!Array.isArray(telegramQuotes)) {
+    telegramQuotes = [];
+  }
+} catch {
+  telegramQuotes = [];
+}
 
           for (const update of updates) {
             const message =
