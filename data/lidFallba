@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 export const FALLBACK_QUOTES = [
   "HONEY NEVER SPOILS",
   "SHARKS PREDATE TREES",
@@ -100,28 +102,28 @@ export const FALLBACK_QUOTES = [
   "HUMANS GLOW VERY FAINTLY",
   "ASTRONAUTS GROW IN SPACE",
   "YOU LIVE ONCE MAKE IT ENOUGH",
-"WISE WARRIORS AVOID BATTLE",
-"DANCE LIKE NO ONE IS WATCHING",
-"CHOICES DEFINE US, NOT ABILITY",
-"A DAY WITHOUT SUNSHINE IS NIGHT",
-"IMAGINATION GETS YOU ANYWHERE",
-"BALANCE IS KEPT WHEN MOVING",
-"MAKE PEOPLE LAUGH",
-"IF IT SCARES YOU, CONTINUE",
-"IN THAT MOMENT, INFINITE",
-"SEEK RESPECT, NOT ATTENTION",
-"DREAMS NEED ACTION",
-"CHATTER IN THE SKULL",
-"THE RIGHT PATH IS RARELY EASY",
-"NEVER WEAKEN",
-"CREATE YOUR OWN MIRACLES",
-"CONTROL YOUR EGO",
-"MEMORISE WHAT YOU CAN'T RESEARCH",
-"IS THE JUICE WORTH THE SQUEEZE?",
-"YOU LEARN THROUGH FAILURE",
-"LIKE A FAT KID LOVES CAKE",
-"YOU CAN DO IT BRUCE",
- "Drugs are bad, mmkay?",
+  "WISE WARRIORS AVOID BATTLE",
+  "DANCE LIKE NO ONE IS WATCHING",
+  "CHOICES DEFINE US, NOT ABILITY",
+  "A DAY WITHOUT SUNSHINE IS NIGHT",
+  "IMAGINATION GETS YOU ANYWHERE",
+  "BALANCE IS KEPT WHEN MOVING",
+  "MAKE PEOPLE LAUGH",
+  "IF IT SCARES YOU, CONTINUE",
+  "IN THAT MOMENT, INFINITE",
+  "SEEK RESPECT, NOT ATTENTION",
+  "DREAMS NEED ACTION",
+  "CHATTER IN THE SKULL",
+  "THE RIGHT PATH IS RARELY EASY",
+  "NEVER WEAKEN",
+  "CREATE YOUR OWN MIRACLES",
+  "CONTROL YOUR EGO",
+  "MEMORISE WHAT YOU CAN'T RESEARCH",
+  "IS THE JUICE WORTH THE SQUEEZE?",
+  "YOU LEARN THROUGH FAILURE",
+  "LIKE A FAT KID LOVES CAKE",
+  "YOU CAN DO IT BRUCE",
+  "Drugs are bad, mmkay?",
   "not fat, festively plump",
   "It's all about moderation",
   "I'm in a glass case of emotion",
@@ -290,7 +292,7 @@ export const FALLBACK_QUOTES = [
   "That's a flash car mister",
   "He's a natural, ain't you Tyrone",
   "We've lost Gorgeous George.",
-  ];
+];
 
 export function cleanQuote(text) {
   return text
@@ -334,10 +336,39 @@ export function canFitQuote(text) {
   return true;
 }
 
+function getTelegramQuotes() {
+  try {
+    const fileContents = readFileSync(
+      new URL(
+        "./telegram-quotes.json",
+        import.meta.url
+      ),
+      "utf8"
+    );
+
+    const quotes = JSON.parse(fileContents);
+
+    return Array.isArray(quotes)
+      ? quotes
+      : [];
+  } catch (error) {
+    console.warn(
+      `Unable to read Telegram quotes: ${error.message}`
+    );
+
+    return [];
+  }
+}
+
 export function getValidFallbackQuotes() {
   const seenQuotes = new Set();
 
-  return FALLBACK_QUOTES.filter((quote) => {
+  const allQuotes = [
+    ...FALLBACK_QUOTES,
+    ...getTelegramQuotes(),
+  ];
+
+  return allQuotes.filter((quote) => {
     if (!canFitQuote(quote)) {
       return false;
     }
@@ -360,4 +391,3 @@ export function getFallbackQuote() {
     Math.floor(Math.random() * validQuotes.length)
   ];
 }
-  
