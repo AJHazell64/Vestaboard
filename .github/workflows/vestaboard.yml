@@ -128,11 +128,21 @@ jobs:
 
               continue;
             }
+
             console.log({
               updateId: update.update_id,
               status: "authorised quote candidate",
               text,
             });
+
+            telegramQuotes.push(text);
+            existingCleanQuotes.add(cleanedText);
+
+            writeFileSync(
+              quotesFile,
+              JSON.stringify(telegramQuotes, null, 2) + "\n",
+              "utf8"
+            );
           }
 
           if (updates.length > 0) {
