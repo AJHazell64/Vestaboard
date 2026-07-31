@@ -657,11 +657,25 @@ else if (displayMode === "day_artwork") {
     !quoteData ||
     quoteData.hour !== currentHour
   ) {
+    let quoteQueue;
+
+    try {
+      quoteQueue = JSON.parse(
+        getSavedQuoteQueue()
+      );
+    } catch {
+      quoteQueue = [];
+    }
+
+    const quoteResult =
+      await getQuote(quoteQueue);
+
     quoteData = {
       hour: currentHour,
-      quote: await getQuote(),
+      quote: quoteResult.quote,
     };
 
+    saveQuoteQueue(quoteResult.queue);
     saveDayQuote(JSON.stringify(quoteData));
   }
 
