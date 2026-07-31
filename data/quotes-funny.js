@@ -104,7 +104,6 @@ export const FUNNY_QUOTES = [
   "You've got red on you",
   "Bittersweet symphony",
   "Oh, hamburgers!",
-  "They took our jobs!",
   "King in the castle!",
   "stay classy, san diego",
   "THIS RAIL IS VERY DIRTY",
