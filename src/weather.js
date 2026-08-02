@@ -60,3 +60,27 @@ export async function getMorningWeather() {
     weatherCode,
   };
 }
+
+export function getMorningWeatherColour(
+  dailyHigh,
+  rainProbability,
+  weatherCode
+) {
+  if (rainProbability >= 50) {
+    return "BLUE";
+  }
+
+  if (weatherCode === 3) {
+    return "WHITE";
+  }
+
+  if (dailyHigh > 25) {
+    return "RED";
+  }
+
+  if (dailyHigh >= 15) {
+    return "ORANGE";
+  }
+
+  return "YELLOW";
+}
