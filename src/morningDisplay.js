@@ -23,7 +23,12 @@ function getUkTime() {
     parts.map(({ type, value }) => [type, value])
   );
 
-  return `${values.hour}:${values.minute}`;
+  const roundedMinute =
+    Math.floor(Number(values.minute) / 5) * 5;
+
+  return `${values.hour}:${String(
+    roundedMinute
+  ).padStart(2, "0")}`;
 }
 
 function getWeekNumber() {
