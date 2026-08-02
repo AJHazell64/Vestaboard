@@ -559,15 +559,7 @@ console.log(
   "Morning weather colour:",
   morningWeatherColour
 );
-const morningDisplay = createMorningDisplay(
-  {
-    ...weather,
-    colour: morningWeatherColour,
-  },
-  null
-);
 
-console.log("Morning display:", morningDisplay);
   
   const dashboard =
     await getTeslaDashboardData(
@@ -595,7 +587,15 @@ console.log(`Display mode: ${displayMode}`);
     bettyRangeMiles =
       getSavedBettyRangeMiles();
   }
+  const morningDisplay = createMorningDisplay(
+    {
+      ...weather,
+      colour: morningWeatherColour,
+    },
+    bettyRangeMiles
+  );
 
+  console.log("Morning display:", morningDisplay);
   const monsomPercentage =
     dashboard.energy?.batteryPercent;
 
