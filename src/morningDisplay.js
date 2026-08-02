@@ -83,12 +83,21 @@ function getRainBarCells(rainProbability) {
     return 0;
   }
 
-  return Math.max(
-    0,
-    Math.min(
-      8,
-      Math.round(rainProbability / 12.5)
-    )
+  const roundedProbability =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(rainProbability)
+      )
+    );
+
+  if (roundedProbability === 100) {
+    return 11;
+  }
+
+  return Math.floor(
+    roundedProbability / 10
   );
 }
 
@@ -109,20 +118,28 @@ export function createMorningDisplay(
   const weekNumber = getWeekNumber();
   const currentTime = getUkTime();
 
+  const rainProbability =
+    Number.isFinite(weather.rainProbability)
+      ? Math.max(
+          0,
+          Math.min(
+            100,
+            Math.round(
+              weather.rainProbability
+            )
+          )
+        )
+      : 0;
+
   const line1 =
     `${dateParts.weekday.toUpperCase()} ` +
     `${dateParts.day}${dateParts.month.toUpperCase()} ` +
     `WK${weekNumber}`;
 
-  const rainBarCells =
-    getRainBarCells(weather.rainProbability);
-
   const line2 =
-    weather.rainProbability === 100
+    rainProbability === 100
       ? "RAIN"
-      : `${String(
-          weather.rainProbability
-        ).padStart(2, " ")}%RAIN`;
+      : `${rainProbability}%RAIN`;
 
   const line3 =
     `${formatTemperature(
@@ -136,7 +153,7 @@ export function createMorningDisplay(
       ...textToCharacters(line1),
       weather.colour,
     ],
-    Array(15).fill("BLACK"),
+    Array(15).fill(weather.colour),
     textToCharacters(line3),
   ];
 
@@ -152,17 +169,19 @@ export function createMorningDisplay(
   const availableRainCells =
     15 - line2TextCharacters.length;
 
-  const filledRainCells =
-    weather.rainProbability === 100
+  const rainBarCells =
+    rainProbability === 100
       ? availableRainCells
       : Math.min(
-          rainBarCells,
+          getRainBarCells(
+            rainProbability
+          ),
           availableRainCells
         );
 
   for (
     let index = 0;
-    index < filledRainCells;
+    index < rainBarCells;
     index += 1
   ) {
     characters[1][
@@ -175,7 +194,7 @@ export function createMorningDisplay(
     line2,
     line3,
     line1Colour: weather.colour,
-    rainBarCells: filledRainCells,
+    rainBarCells,
     characters,
   };
 }
