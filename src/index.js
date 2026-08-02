@@ -4,6 +4,7 @@ import {
   refreshTeslaTokens,
   getTeslaDashboardData,
 } from "./tesla.js";
+import { getMorningWeather } from "./weather.js";
 import {
   artwork,
   addContent,
