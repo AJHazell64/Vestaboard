@@ -541,7 +541,10 @@ async function main() {
   console.log(
     "Retrieving Tesla and Powerwall data"
   );
+const weather = await getMorningWeather();
 
+console.log("Morning weather:", weather);
+  
   const dashboard =
     await getTeslaDashboardData(
       tokens.accessToken
