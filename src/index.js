@@ -558,6 +558,15 @@ console.log(
   "Morning weather colour:",
   morningWeatherColour
 );
+const morningDisplay = createMorningDisplay(
+  {
+    ...weather,
+    colour: morningWeatherColour,
+  },
+  null
+);
+
+console.log("Morning display:", morningDisplay);
   
   const dashboard =
     await getTeslaDashboardData(
