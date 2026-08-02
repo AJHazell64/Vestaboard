@@ -8,6 +8,7 @@ import {
   getMorningWeather,
   getMorningWeatherColour,
 } from "./weather.js";
+import { createMorningDisplay } from "./morningDisplay.js";
 import {
   artwork,
   addContent,
