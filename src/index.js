@@ -4,7 +4,10 @@ import {
   refreshTeslaTokens,
   getTeslaDashboardData,
 } from "./tesla.js";
-import { getMorningWeather } from "./weather.js";
+import {
+  getMorningWeather,
+  getMorningWeatherColour,
+} from "./weather.js";
 import {
   artwork,
   addContent,
@@ -543,7 +546,18 @@ async function main() {
   );
 const weather = await getMorningWeather();
 
+const morningWeatherColour =
+  getMorningWeatherColour(
+    weather.dailyHigh,
+    weather.rainProbability,
+    weather.weatherCode
+  );
+
 console.log("Morning weather:", weather);
+console.log(
+  "Morning weather colour:",
+  morningWeatherColour
+);
   
   const dashboard =
     await getTeslaDashboardData(
