@@ -565,7 +565,7 @@ console.log(
     await getTeslaDashboardData(
       tokens.accessToken
     );
-const displayMode = "morning";
+const displayMode = getDisplayMode();
 
 console.log(`Display mode: ${displayMode}`);
   const currentRange =
