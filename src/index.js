@@ -646,7 +646,11 @@ if (displayMode === "night") {
     nightDisplay
   );
 }
-
+else if (displayMode === "morning") {
+  characterCodes = compilePattern(
+    morningDisplay.characters
+  );
+}
 else if (displayMode === "day_artwork") {
   const { hour: currentHour, minute: currentMinute } =
     getUkTimeParts();
