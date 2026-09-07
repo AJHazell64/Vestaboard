@@ -746,7 +746,6 @@ let lines;
   let characterCodes;
 
 if (displayMode === "night") {
-  const { hour: currentHour } = getUkTimeParts();
 
   const savedNightArtwork = getSavedNightArtwork();
   const savedNightDate = getSavedNightDate();
@@ -772,15 +771,10 @@ if (displayMode === "night") {
     saveNightDate(nightDate);
   }
 
-  const nightDisplay =
-    currentHour >= 0 && currentHour < 7
-      ? addDayComplete(
-          nightArtworkData.rawCharacters,
-          getDaysAlive()
-        )
-      : addTime(
-          nightArtworkData.rawCharacters
-        );
+const nightDisplay = addDayComplete(
+  nightArtworkData.rawCharacters,
+  getDaysAlive()
+);
 
   characterCodes = compilePattern(
     nightDisplay
