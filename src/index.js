@@ -904,7 +904,7 @@ console.log("");
 console.log(payload);
 console.log("");
 
-const { totalMinutes } = getUkTimeParts();
+const { totalMinutes, minute } = getUkTimeParts();
 
 const isQuietNight =
   totalMinutes >= 22 * 60 + 35 ||
@@ -913,6 +913,23 @@ const isQuietNight =
 if (isQuietNight) {
   console.log(
     "Quiet night period - Vestaboard update suppressed"
+  );
+  return;
+}
+
+const isReducedUpdatePeriod =
+  totalMinutes >= 19 * 60 &&
+  totalMinutes < 22 * 60 + 30;
+
+const isQuarterHour =
+  minute % 15 === 0;
+
+if (
+  isReducedUpdatePeriod &&
+  !isQuarterHour
+) {
+  console.log(
+    "19:00-22:30 reduced update period - Vestaboard update suppressed"
   );
   return;
 }
