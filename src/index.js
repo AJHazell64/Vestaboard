@@ -593,26 +593,7 @@ function getDaysAlive() {
   );
 }
 async function main() {
-  console.log(
-    "Refreshing Tesla access token"
-  );
 
-  const tokens =
-    await refreshTeslaTokens();
-
-  if (
-    tokens.refreshToken &&
-    tokens.refreshToken !==
-      process.env.TESLA_REFRESH_TOKEN
-  ) {
-    saveReplacementTeslaRefreshToken(
-      tokens.refreshToken
-    );
-  }
-
-  console.log(
-    "Retrieving Tesla and Powerwall data"
-  );
 let weather;
 
 try {
@@ -645,12 +626,82 @@ console.log(
 );
 
   
-let dashboard;
+let dashboard = getSavedTeslaDashboard();
 
-try {
-  dashboard = await getTeslaDashboardData(
-    tokens.accessToken
+const currentTeslaFetchHour =
+  getCurrentTeslaFetchHour();
+
+const lastTeslaFetchHour =
+  getSavedTeslaFetchHour();
+
+const shouldFetchTesla =
+  !dashboard ||
+  lastTeslaFetchHour !== currentTeslaFetchHour;
+
+if (shouldFetchTesla) {
+  console.log(
+    "Tesla data is due for refresh"
   );
+
+  try {
+    console.log(
+      "Refreshing Tesla access token"
+    );
+
+    const tokens =
+      await refreshTeslaTokens();
+
+    if (
+      tokens.refreshToken &&
+      tokens.refreshToken !==
+        process.env.TESLA_REFRESH_TOKEN
+    ) {
+      saveReplacementTeslaRefreshToken(
+        tokens.refreshToken
+      );
+    }
+
+    console.log(
+      "Retrieving Tesla and Powerwall data"
+    );
+
+    const liveDashboard =
+      await getTeslaDashboardData(
+        tokens.accessToken
+      );
+
+    dashboard = liveDashboard;
+
+    saveTeslaDashboard(dashboard);
+    saveTeslaFetchHour(
+      currentTeslaFetchHour
+    );
+
+    console.log(
+      "Tesla dashboard cache updated"
+    );
+  } catch (error) {
+    console.error(
+      "Tesla refresh failed - using last known dashboard:",
+      error.message
+    );
+  }
+} else {
+  console.log(
+    "Using cached Tesla dashboard - live Tesla fetch not required"
+  );
+}
+
+if (!dashboard) {
+  console.warn(
+    "No cached Tesla dashboard available - using safe fallback"
+  );
+
+  dashboard = {
+    vehicle: null,
+    energy: null,
+  };
+}
 } catch (error) {
   console.error(
     "Tesla dashboard retrieval failed - continuing without live Tesla data:",
