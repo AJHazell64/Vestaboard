@@ -577,10 +577,23 @@ console.log(
 );
 
   
-  const dashboard =
-    await getTeslaDashboardData(
-      tokens.accessToken
-    );
+let dashboard;
+
+try {
+  dashboard = await getTeslaDashboardData(
+    tokens.accessToken
+  );
+} catch (error) {
+  console.error(
+    "Tesla dashboard retrieval failed - continuing without live Tesla data:",
+    error.message
+  );
+
+  dashboard = {
+    vehicle: null,
+    energy: null,
+  };
+}
 const displayMode = getDisplayMode();
 
 console.log(`Display mode: ${displayMode}`);
