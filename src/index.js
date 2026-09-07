@@ -853,14 +853,22 @@ else if (displayMode === "day_artwork") {
 
   const savedQuoteData = getSavedDayQuote();
 
-  let quoteData = savedQuoteData
-    ? JSON.parse(savedQuoteData)
-    : null;
+let quoteData = savedQuoteData
+  ? JSON.parse(savedQuoteData)
+  : null;
 
-  if (
-    !quoteData ||
-    quoteData.hour !== currentHour
-  ) {
+const nextQuoteRequested =
+  runGitHubCommand([
+    "variable",
+    "get",
+    "NEXT_QUOTE_REQUESTED",
+  ]) === "true";
+
+if (
+  !quoteData ||
+  quoteData.hour !== currentHour ||
+  nextQuoteRequested
+) {
     let quoteQueue;
 
     try {
