@@ -902,6 +902,19 @@ console.log("");
 console.log(payload);
 console.log("");
 
+const { totalMinutes } = getUkTimeParts();
+
+const isQuietNight =
+  totalMinutes >= 22 * 60 + 35 ||
+  totalMinutes < 8 * 60;
+
+if (isQuietNight) {
+  console.log(
+    "Quiet night period - Vestaboard update suppressed"
+  );
+  return;
+}
+
 await sendToVestaboard(payload);
 }
 
