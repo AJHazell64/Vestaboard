@@ -141,10 +141,7 @@ export function createMorningDisplay(
     `${dateParts.day}${dateParts.month.toUpperCase().slice(0, 3)} ` +
     `WK${weekNumber}`;
 
-  const line2 =
-    rainProbability === 100
-      ? "RAIN"
-      : `${rainProbability}%RAIN`;
+const line2 = "RAIN%";
 
   const line3 =
     `${formatTemperature(
@@ -153,46 +150,62 @@ export function createMorningDisplay(
     `${formatRange(teslaRangeMiles)} ` +
     currentTime;
 
-  const characters = [
-    [
-      ...textToCharacters(line1),
-      weather.colour,
-    ],
-    Array(15).fill(weather.colour),
-    textToCharacters(line3),
-  ];
+  const baseColour = weather.colour;
 
-  const line2TextCharacters =
-    textToCharacters(line2);
+const line1Characters =
+  textToCharacters(line1);
 
-  characters[1].splice(
-    0,
-    line2TextCharacters.length,
-    ...line2TextCharacters
-  );
+const line3Characters =
+  textToCharacters(line3);
 
-  const availableRainCells =
-    15 - line2TextCharacters.length;
-
-  const rainBarCells =
-    rainProbability === 100
-      ? availableRainCells
-      : Math.min(
-          getRainBarCells(
-            rainProbability
-          ),
-          availableRainCells
-        );
-
-  for (
-    let index = 0;
-    index < rainBarCells;
-    index += 1
-  ) {
-    characters[1][
-      line2TextCharacters.length + index
-    ] = "BLUE";
+// Colour only cells which would otherwise be blank.
+// Actual text/data always takes priority.
+for (
+  let index = 0;
+  index < line1Characters.length;
+  index += 1
+) {
+  if (line1Characters[index] === "BLANK") {
+    line1Characters[index] = baseColour;
   }
+}
+
+for (
+  let index = 0;
+  index < line3Characters.length;
+  index += 1
+) {
+  if (line3Characters[index] === "BLANK") {
+    line3Characters[index] = baseColour;
+  }
+}
+
+// Row 1 is 14 characters + final weather colour cell.
+const row1 = [
+  ...line1Characters,
+  baseColour,
+];
+
+// Row 2 is always exactly:
+// R A I N % + 10 colour cells
+const rainBarCells = Math.min(
+  10,
+  Math.floor(rainProbability / 10)
+);
+
+const row2 = [
+  ...textToCharacters("RAIN%"),
+  ...Array(rainBarCells).fill("BLUE"),
+  ...Array(10 - rainBarCells).fill(
+    baseColour
+  ),
+];
+
+const characters = [
+  row1,
+  row2,
+  line3Characters,
+];
 
   return {
     line1,
