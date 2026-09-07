@@ -534,6 +534,42 @@ function getUkTimeParts() {
 }
 
 function getDisplayMode() {
+  const overrideMode = runGitHubCommand([
+    "variable",
+    "get",
+    "DISPLAY_MODE_OVERRIDE",
+  ]);
+
+  const overrideUntil = runGitHubCommand([
+    "variable",
+    "get",
+    "DISPLAY_MODE_OVERRIDE_UNTIL",
+  ]);
+
+  if (
+    overrideMode &&
+    overrideUntil &&
+    Date.now() < new Date(overrideUntil).getTime()
+  ) {
+    const modeMap = {
+      morning: "morning",
+      day: "day_artwork",
+      evening: "evening",
+      night: "night",
+    };
+
+    const mappedMode =
+      modeMap[overrideMode.toLowerCase()];
+
+    if (mappedMode) {
+      console.log(
+        `Active display override: ${overrideMode} until ${overrideUntil}`
+      );
+
+      return mappedMode;
+    }
+  }
+
   const { totalMinutes } = getUkTimeParts();
 
   // Night / quiet period: 22:30 - 08:00
