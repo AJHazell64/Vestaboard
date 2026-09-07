@@ -545,7 +545,23 @@ async function main() {
   console.log(
     "Retrieving Tesla and Powerwall data"
   );
-const weather = await getMorningWeather();
+let weather;
+
+try {
+  weather = await getMorningWeather();
+} catch (error) {
+  console.error(
+    "Weather retrieval failed - using safe fallback:",
+    error.message
+  );
+
+  weather = {
+    currentTemperature: 0,
+    dailyHigh: 0,
+    rainProbability: 0,
+    weatherCode: 0,
+  };
+}
 
 const morningWeatherColour =
   getMorningWeatherColour(
