@@ -536,12 +536,15 @@ function getUkTimeParts() {
 function getDisplayMode() {
   const { totalMinutes } = getUkTimeParts();
 
-  // Night: 23:30 - 07:00
-  if (totalMinutes >= 23 * 60 + 30 || totalMinutes < 7 * 60) {
+  // Night / quiet period: 22:30 - 08:00
+  if (
+    totalMinutes >= 22 * 60 + 30 ||
+    totalMinutes < 8 * 60
+  ) {
     return "night";
   }
 
-  // Morning: 07:00 - 09:00
+  // Morning: 08:00 - 09:00
   if (totalMinutes < 9 * 60) {
     return "morning";
   }
@@ -551,10 +554,9 @@ function getDisplayMode() {
     return "day_artwork";
   }
 
-  // Evening: 21:00 - 23:30
+  // Evening: 21:00 - 22:30
   return "evening";
 }
-
 function getNightDate() {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
