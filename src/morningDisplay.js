@@ -138,7 +138,7 @@ export function createMorningDisplay(
 
   const line1 =
     `${dateParts.weekday.toUpperCase()} ` +
-    `${dateParts.day}${dateParts.month.toUpperCase()} ` +
+    `${dateParts.day}${dateParts.month.toUpperCase().slice(0, 3)} ` +
     `WK${weekNumber}`;
 
   const line2 =
