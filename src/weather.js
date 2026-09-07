@@ -25,8 +25,17 @@ export async function getMorningWeather() {
     );
   }
 
-  const data = await response.json();
+const responseText = await response.text();
 
+let data;
+
+try {
+  data = JSON.parse(responseText);
+} catch {
+  throw new Error(
+    `Weather response was not valid JSON: ${responseText.slice(0, 120)}`
+  );
+}
   const currentTemperature =
     data.current?.temperature_2m;
 
