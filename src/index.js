@@ -354,7 +354,75 @@ function saveBettyRangeMiles(rangeMiles) {
     );
   }
 }
+function getCurrentTeslaFetchHour() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
 
+  const values = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value])
+  );
+
+  return `${values.year}-${values.month}-${values.day}-${values.hour}`;
+}
+
+function getSavedTeslaFetchHour() {
+  return (
+    runGitHubCommand([
+      "variable",
+      "get",
+      "LAST_TESLA_FETCH_HOUR",
+    ]) || null
+  );
+}
+
+function saveTeslaFetchHour(hour) {
+  runGitHubCommand([
+    "variable",
+    "set",
+    "LAST_TESLA_FETCH_HOUR",
+    "--body",
+    hour,
+  ]);
+}
+
+function getSavedTeslaDashboard() {
+  const storedValue = runGitHubCommand([
+    "variable",
+    "get",
+    "LAST_TESLA_DASHBOARD",
+  ]);
+
+  if (!storedValue) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(storedValue);
+  } catch (error) {
+    console.warn(
+      `Unable to read saved Tesla dashboard: ${error.message}`
+    );
+    return null;
+  }
+}
+
+function saveTeslaDashboard(dashboard) {
+  runGitHubCommand([
+    "variable",
+    "set",
+    "LAST_TESLA_DASHBOARD",
+    "--body",
+    JSON.stringify(dashboard),
+  ]);
+}
 function formatBettyRange(rangeMiles) {
   if (!Number.isFinite(rangeMiles)) {
     return "BETTY --MI";
