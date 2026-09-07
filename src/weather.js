@@ -75,10 +75,25 @@ export function getMorningWeatherColour(
   rainProbability,
   weatherCode
 ) {
-  if (rainProbability >= 50) {
-    return "BLUE";
+export function getMorningWeatherColour(
+  dailyHigh,
+  rainProbability,
+  weatherCode
+) {
+  if (weatherCode === 3) {
+    return "WHITE";
   }
 
+  if (dailyHigh > 25) {
+    return "RED";
+  }
+
+  if (dailyHigh >= 15) {
+    return "ORANGE";
+  }
+
+  return "YELLOW";
+}
   if (weatherCode === 3) {
     return "WHITE";
   }
