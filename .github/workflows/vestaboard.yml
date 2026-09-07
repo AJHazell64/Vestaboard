@@ -133,7 +133,45 @@ jobs:
             }
 
             const cleanedText = cleanQuote(text);
-
+            if (text.trim().toLowerCase() === "cancel") {
+              for (const variableName of [
+                "DISPLAY_MODE_OVERRIDE",
+                "DISPLAY_MODE_OVERRIDE_UNTIL",
+              ]) {
+                try {
+                  execFileSync(
+                    "gh",
+                    [
+                      "variable",
+                      "delete",
+                      variableName,
+                      "--repo",
+                      process.env.GITHUB_REPOSITORY,
+                    ],
+                    {
+                      stdio: "inherit",
+                      env: process.env,
+                    }
+                  );
+                } catch {
+                  console.log(
+                    `${variableName} was already cleared`
+                  );
+                }
+              }
+            
+              console.log({
+                updateId: update.update_id,
+                status: "display mode override cancelled",
+              });
+            
+              await sendTelegramReply(
+                message.chat.id,
+                "✅ Display mode override cancelled"
+              );
+            
+              continue;
+            }
             const modeMatch = text.match(
               /^(morning|day|evening|night)(\d+)$/i
             );
