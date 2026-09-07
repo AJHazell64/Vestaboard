@@ -549,14 +549,16 @@ function getDisplayMode() {
     return "morning";
   }
 
-  // Day: 09:00 - 21:00
-  if (totalMinutes < 21 * 60) {
+  // Day: 09:00 - 21:30
+  if (totalMinutes < 21 * 60 + 30) {
     return "day_artwork";
   }
 
-  // Evening: 21:00 - 22:30
+  // Evening: 21:30 - 22:30
   return "evening";
 }
+
+
 function getNightDate() {
   const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/London",
