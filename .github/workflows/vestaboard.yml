@@ -172,6 +172,37 @@ jobs:
             
               continue;
             }
+            if (text.trim().toLowerCase() === "next") {
+                execFileSync(
+                  "gh",
+                  [
+                    "variable",
+                    "set",
+                    "NEXT_QUOTE_REQUESTED",
+                    "--body",
+                    "true",
+                    "--repo",
+                    process.env.GITHUB_REPOSITORY,
+                  ],
+                  {
+                    stdio: "inherit",
+                    env: process.env,
+                  }
+                );
+              
+                console.log({
+                  updateId: update.update_id,
+                  status: "next quote requested",
+                });
+              
+                await sendTelegramReply(
+                  message.chat.id,
+                  "✅ Next quote requested"
+                );
+              
+                continue;
+              }
+            
             const modeMatch = text.match(
               /^(morning|day|evening|night)(\d+)$/i
             );
