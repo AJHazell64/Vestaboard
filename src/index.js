@@ -702,17 +702,7 @@ if (!dashboard) {
     energy: null,
   };
 }
-} catch (error) {
-  console.error(
-    "Tesla dashboard retrieval failed - continuing without live Tesla data:",
-    error.message
-  );
 
-  dashboard = {
-    vehicle: null,
-    energy: null,
-  };
-}
 const displayMode = getDisplayMode();
 
 console.log(`Display mode: ${displayMode}`);
