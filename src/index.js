@@ -889,6 +889,18 @@ if (
 
     saveQuoteQueue(quoteResult.queue);
     saveDayQuote(JSON.stringify(quoteData));
+    if (nextQuoteRequested) {
+  runGitHubCommand([
+    "variable",
+    "delete",
+    "NEXT_QUOTE_REQUESTED",
+  ]);
+
+  console.log(
+    "Next quote request completed and cleared"
+  );
+}
+  
   }
 
     characterCodes = compilePattern(
