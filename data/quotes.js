@@ -192,7 +192,7 @@ export const FALLBACK_QUOTES = [
   "That's a flash car mister",
   "He's a natural, ain't you Tyrone",
   "We've lost Gorgeous George.",
-    "Durka Durka",
+  "Durka Durka",
   "Not my circus not my monkeys",
   "Not in the blood sir",
   "Stay curious",
