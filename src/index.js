@@ -824,8 +824,14 @@ else if (displayMode === "morning") {
   );
 }
 else if (displayMode === "day_artwork") {
-  const { hour: currentHour, minute: currentMinute } =
-    getUkTimeParts();
+  const { hour: currentHour } = getUkTimeParts();
+
+  const currentDate = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 
   const savedDayArtwork = getSavedDayArtwork();
 
@@ -835,15 +841,14 @@ else if (displayMode === "day_artwork") {
 
   if (
     !dayArtwork ||
-    dayArtwork.hour !== currentHour ||
+    dayArtwork.date !== currentDate ||
     !dayArtwork.rawCharacters
   ) {
     const selectedArtwork =
       artwork[Math.floor(Math.random() * artwork.length)];
 
     dayArtwork = {
-      hour: currentHour,
-      minute: currentMinute,
+      date: currentDate,
       rawCharacters: selectedArtwork.rawCharacters,
       characters: selectedArtwork.characters,
     };
