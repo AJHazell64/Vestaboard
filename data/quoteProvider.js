@@ -1,43 +1,45 @@
-import { getValidFallbackQuotes } from "./quotes.js";
+import {
+  getValidFallbackQuotes,
+  cleanQuote,
+} from "./quotes.js";
 
-function shuffleQuotes(quotes) {
-  const shuffledQuotes = [...quotes];
+export async function getQuote(savedState = []) {
+  // Reload the current main and Telegram quote lists.
+  const quotes = getValidFallbackQuotes();
 
-  for (
-    let index = shuffledQuotes.length - 1;
-    index > 0;
-    index -= 1
-  ) {
-    const randomIndex =
-      Math.floor(Math.random() * (index + 1));
-
-    [
-      shuffledQuotes[index],
-      shuffledQuotes[randomIndex],
-    ] = [
-      shuffledQuotes[randomIndex],
-      shuffledQuotes[index],
-    ];
+  if (quotes.length === 0) {
+    throw new Error("No valid quotes available");
   }
 
-  return shuffledQuotes;
-}
+  // Older queue format starts a fresh tracking cycle.
+  const shown = new Set(
+    savedState?.version === 2 &&
+    Array.isArray(savedState.shown)
+      ? savedState.shown
+      : []
+  );
 
-export async function getQuote(savedQueue = []) {
-  let quoteQueue = Array.isArray(savedQueue)
-    ? [...savedQueue]
-    : [];
+  let remaining = quotes.filter(
+    (quote) => !shown.has(cleanQuote(quote))
+  );
 
-  if (quoteQueue.length === 0) {
-    quoteQueue = shuffleQuotes(
-      getValidFallbackQuotes()
-    );
+  // Start again once every available quote has been shown.
+  if (remaining.length === 0) {
+    shown.clear();
+    remaining = quotes;
   }
 
-  const quote = quoteQueue.shift();
+  // Randomly select one of the unseen quotes.
+  const quote =
+    remaining[Math.floor(Math.random() * remaining.length)];
+
+  shown.add(cleanQuote(quote));
 
   return {
     quote,
-    queue: quoteQueue,
+    queue: {
+      version: 2,
+      shown: [...shown],
+    },
   };
 }
