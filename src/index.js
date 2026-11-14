@@ -1016,8 +1016,12 @@ try {
 }
 
 
+
 const isNewHour =
-  !quoteData || quoteData.hour !== currentHour;
+  !quoteData ||
+  quoteData.hour !== currentHour ||
+  nextQuoteRequested;
+
 
 let pendingAppQuotes = [];
 
@@ -1123,10 +1127,12 @@ if (isValidPriorityQuote) {
   characterCodes = compilePattern(
     addTime(
 
+
 addContent(
   dayArtwork.rawCharacters,
-  cleanQuote(quoteData.quote)
+  quoteData.quote
 )
+
 
     )
   );
