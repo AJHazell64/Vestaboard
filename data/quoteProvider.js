@@ -3,9 +3,17 @@ import {
   cleanQuote,
 } from "./quotes.js";
 
-export async function getQuote(savedState = []) {
-  // Reload the current main and Telegram quote lists.
-  const quotes = getValidFallbackQuotes();
+
+export async function getQuote(savedState = [], excludedQuotes = []) {
+  // Reload quotes, excluding permanently removed entries.
+  const excluded = new Set(
+    excludedQuotes.map((quote) => cleanQuote(quote))
+  );
+
+  const quotes = getValidFallbackQuotes().filter(
+    (quote) => !excluded.has(cleanQuote(quote))
+  );
+
 
   if (quotes.length === 0) {
     throw new Error("No valid quotes available");
