@@ -897,11 +897,20 @@ const nextQuoteRequested =
     "NEXT_QUOTE_REQUESTED",
   ]) === "true";
 
-if (
+
+const christmasCountdown = getChristmasCountdown();
+
+if (christmasCountdown) {
+  quoteData = {
+    hour: currentHour,
+    quote: christmasCountdown,
+  };
+} else if (
   !quoteData ||
   quoteData.hour !== currentHour ||
   nextQuoteRequested
 ) {
+
     let quoteQueue;
 
     try {
