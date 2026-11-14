@@ -4,15 +4,41 @@ import {
 } from "./quotes.js";
 
 
-export async function getQuote(savedState = [], excludedQuotes = []) {
+
+export async function getQuote(
+  savedState = [],
+  excludedQuotes = [],
+  appQuotes = []
+) {
+
   // Reload quotes, excluding permanently removed entries.
   const excluded = new Set(
     excludedQuotes.map((quote) => cleanQuote(quote))
   );
 
-  const quotes = getValidFallbackQuotes().filter(
-    (quote) => !excluded.has(cleanQuote(quote))
-  );
+
+const allQuotes = [
+  ...getValidFallbackQuotes(),
+  ...appQuotes,
+];
+
+const seen = new Set();
+
+const quotes = allQuotes.filter((quote) => {
+  const cleaned = cleanQuote(quote);
+
+  if (
+    !cleaned ||
+    excluded.has(cleaned) ||
+    seen.has(cleaned)
+  ) {
+    return false;
+  }
+
+  seen.add(cleaned);
+  return true;
+});
+
 
 
   if (quotes.length === 0) {
