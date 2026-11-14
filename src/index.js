@@ -1199,6 +1199,13 @@ if (isQuietNight) {
   return;
 }
 
+const modeChangeRequested =
+  runGitHubCommand([
+    "variable",
+    "get",
+    "DISPLAY_MODE_CHANGE_REQUESTED",
+  ]) === "true";
+
 const isReducedUpdatePeriod =
   totalMinutes >= 19 * 60 &&
   totalMinutes < 22 * 60 + 30;
@@ -1206,10 +1213,13 @@ const isReducedUpdatePeriod =
 const isQuarterHour =
   minute % 15 === 0;
 
+
 if (
   isReducedUpdatePeriod &&
-  !isQuarterHour
+  !isQuarterHour &&
+  !modeChangeRequested
 ) {
+
   console.log(
     "19:00-22:30 reduced update period - Vestaboard update suppressed"
   );
@@ -1218,6 +1228,16 @@ if (
 
 
 await sendToVestaboard(payload);
+
+if (modeChangeRequested) {
+  runGitHubCommand([
+    "variable",
+    "set",
+    "DISPLAY_MODE_CHANGE_REQUESTED",
+    "--body",
+    "false",
+  ]);
+}
 
 writeFileSync(
   "data/current-board.json",
