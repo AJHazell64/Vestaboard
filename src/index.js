@@ -1122,10 +1122,12 @@ if (isValidPriorityQuote) {
 
   characterCodes = compilePattern(
     addTime(
-      addContent(
-        dayArtwork.rawCharacters,
-        quoteData.quote
-      )
+
+addContent(
+  dayArtwork.rawCharacters,
+  cleanQuote(quoteData.quote)
+)
+
     )
   );
 
