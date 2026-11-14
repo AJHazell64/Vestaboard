@@ -991,8 +991,29 @@ try {
   excludedQuotes = [];
 }
 
+
+let appQuotes = [];
+
+try {
+  const storedAppQuotes = runGitHubCommand([
+    "variable",
+    "get",
+    "APP_QUOTES",
+  ]);
+
+  const parsed = JSON.parse(storedAppQuotes || "[]");
+
+  if (Array.isArray(parsed)) {
+    appQuotes = parsed.filter(
+      quote => typeof quote === "string"
+    );
+  }
+} catch {
+  console.warn("Unable to read app quotes");
+}
+
 const quoteResult =
-  await getQuote(quoteQueue, excludedQuotes);
+  await getQuote(quoteQueue, excludedQuotes, appQuotes);
 
 
     quoteData = {
