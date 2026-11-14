@@ -632,6 +632,34 @@ function getDaysAlive() {
       (24 * 60 * 60 * 1000)
   );
 }
+
+function getChristmasCountdown() {
+  const now = new Date();
+
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+
+  const values = Object.fromEntries(
+    parts.map(({ type, value }) => [type, value])
+  );
+
+  const month = Number(values.month);
+  const day = Number(values.day);
+  const { hour } = getUkTimeParts();
+
+  if (month !== 12 || day < 1 || day > 24 || hour !== 9) {
+    return null;
+  }
+
+  const daysRemaining = 25 - day;
+
+  return `${daysRemaining} DAY${daysRemaining === 1 ? "" : "S"} TILL SANTA`;
+}
+
+
 async function main() {
 
 let weather;
