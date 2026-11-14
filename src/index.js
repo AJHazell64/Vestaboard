@@ -633,6 +633,36 @@ function getDaysAlive() {
   );
 }
 
+
+function getSpecialDayQuote() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+
+  const values = Object.fromEntries(
+    parts.map(({ type, value }) => [type, value])
+  );
+
+  const year = Number(values.year);
+  const month = Number(values.month);
+  const day = Number(values.day);
+
+  if (month === 6 && day === 21) {
+    const age = year - 1989;
+    return `${age} TRIPS AROUND THE SUN`;
+  }
+
+  if (month === 12 && day === 25) {
+    return "MERRY CHRISTMAS YA FILTHY ANIMALS";
+  }
+
+  return null;
+}
+
+
 function getChristmasCountdown() {
   const now = new Date();
 
