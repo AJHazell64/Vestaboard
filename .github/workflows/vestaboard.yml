@@ -543,6 +543,12 @@ jobs:
           git commit -m "Add Telegram quote"
           git push
 
+      - name: Process quote library reset
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: node src/resetQuoteLibrary.js
+
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
