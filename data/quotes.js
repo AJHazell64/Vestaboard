@@ -292,6 +292,21 @@ export const FALLBACK_QUOTES = [
   "This is not the whole story"
 ];
 
+export function formatDisplayQuote(text) {
+  return text
+    .toUpperCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[‘’‚‛]/g, "'")
+    .replace(/[“”„‟]/g, '"')
+    .replace(/…/g, "...")
+    .replace(/[–—−]/g, "-")
+    .replace(/[^A-Z0-9 !@#$()\-+&=;:'"%,./?]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+
 export function cleanQuote(text) {
   return text
     .toUpperCase()
@@ -301,7 +316,12 @@ export function cleanQuote(text) {
 }
 
 export function canFitQuote(text) {
-  const words = cleanQuote(text).split(" ");
+
+const formatted = formatDisplayQuote(text);
+if (!formatted) return false;
+
+const words = formatted.split(" ");
+
 
   const rows = ["", "", ""];
   const limits = [15, 9, 9];
