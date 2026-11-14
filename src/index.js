@@ -20,6 +20,9 @@ import {
 } from "../data/artwork.js";
 import { compilePattern } from "./artworkCompiler.js";
 import { getQuote } from "../data/quoteProvider.js";
+
+import { cleanQuote, canFitQuote } from "../data/quotes.js";
+
 function requireEnvironmentVariable(...names) {
   for (const name of names) {
     const value = process.env[name];
@@ -1012,8 +1015,83 @@ try {
   console.warn("Unable to read app quotes");
 }
 
-const quoteResult =
-  await getQuote(quoteQueue, excludedQuotes, appQuotes);
+
+const isNewHour =
+  !quoteData || quoteData.hour !== currentHour;
+
+let pendingAppQuotes = [];
+
+if (isNewHour) {
+  try {
+    const savedPending = runGitHubCommand([
+      "variable",
+      "get",
+      "PENDING_APP_QUOTES",
+    ]);
+
+    const parsed = JSON.parse(savedPending || "[]");
+
+    if (Array.isArray(parsed)) {
+      pendingAppQuotes = parsed.filter(
+        quote => typeof quote === "string"
+      );
+    }
+  } catch {
+    console.warn("Unable to read pending app quotes");
+  }
+}
+
+const nextAppQuote = pendingAppQuotes[0];
+
+const isValidPriorityQuote =
+  nextAppQuote &&
+  canFitQuote(nextAppQuote) &&
+  appQuotes.some(
+    quote => cleanQuote(quote) === cleanQuote(nextAppQuote)
+  ) &&
+  !excludedQuotes.some(
+    quote => cleanQuote(quote) === cleanQuote(nextAppQuote)
+  );
+
+let quoteResult;
+
+if (isValidPriorityQuote) {
+  const shown =
+    quoteQueue?.version === 2 &&
+    Array.isArray(quoteQueue.shown)
+      ? quoteQueue.shown.map(cleanQuote)
+      : [];
+
+  quoteResult = {
+    quote: nextAppQuote,
+    queue: {
+      version: 2,
+      shown: [
+        ...new Set([
+          ...shown,
+          cleanQuote(nextAppQuote),
+        ]),
+      ],
+    },
+  };
+
+  runGitHubCommand([
+    "variable",
+    "set",
+    "PENDING_APP_QUOTES",
+    "--body",
+    JSON.stringify(pendingAppQuotes.slice(1)),
+  ]);
+
+  console.log("Selected priority app quote");
+} else {
+  quoteResult = await getQuote(
+    quoteQueue,
+    excludedQuotes,
+    appQuotes
+  );
+}
+
 
 
     quoteData = {
