@@ -1100,8 +1100,19 @@ if (
   return;
 }
 
+
 await sendToVestaboard(payload);
+
+writeFileSync(
+  "data/current-board.json",
+  JSON.stringify({
+    updatedAt: new Date().toISOString(),
+    characters: payload,
+  }, null, 2) + "\n",
+  "utf8"
+);
 }
+
 
 main().catch((error) => {
   console.error(error);
