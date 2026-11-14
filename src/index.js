@@ -678,11 +678,26 @@ function getChristmasCountdown() {
 
   const month = Number(values.month);
   const day = Number(values.day);
-  const { hour } = getUkTimeParts();
+ 
+const { totalMinutes } = getUkTimeParts();
 
-  if (month !== 12 || day < 1 || day > 24 || hour !== 9) {
-    return null;
-  }
+const morningCountdown =
+  totalMinutes >= 9 * 60 &&
+  totalMinutes < 10 * 60;
+
+const eveningCountdown =
+  totalMinutes >= 20 * 60 + 30 &&
+  totalMinutes < 21 * 60 + 30;
+
+if (
+  month !== 12 ||
+  day < 1 ||
+  day > 24 ||
+  (!morningCountdown && !eveningCountdown)
+) {
+  return null;
+}
+
 
   const daysRemaining = 25 - day;
 
