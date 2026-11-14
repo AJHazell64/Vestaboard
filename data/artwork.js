@@ -1,5 +1,10 @@
 import { compilePattern } from "../src/artworkCompiler.js";
-import { FALLBACK_QUOTES } from "./quotes.js";
+
+import {
+  FALLBACK_QUOTES,
+  formatDisplayQuote,
+} from "./quotes.js";
+
 
 const COLOURS = [
   "RED",
@@ -233,7 +238,9 @@ function convertTextToCharacters(text) {
 function addContent(grid, content) {
   const result = grid.map((row) => [...row]);
 
-  const words = content.toUpperCase().split(" ");
+
+const words = formatDisplayQuote(content).split(" ");
+
   const rows = ["", "", ""];
   let row = 0;
 
