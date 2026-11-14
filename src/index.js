@@ -853,8 +853,11 @@ console.log(`Display mode: ${displayMode}`);
   const netGridTodayKwh =
     dashboard.energy?.netGridTodayKwh;
 
+
 let lines;
-  let characterCodes;
+let characterCodes;
+let quotePreviewBackground = null;
+
 
 if (displayMode === "night") {
 
@@ -1013,7 +1016,12 @@ const quoteResult =
   
   }
 
-    characterCodes = compilePattern(
+
+  quotePreviewBackground = compilePattern(
+    addTime(dayArtwork.rawCharacters)
+  );
+
+  characterCodes = compilePattern(
     addTime(
       addContent(
         dayArtwork.rawCharacters,
@@ -1021,6 +1029,7 @@ const quoteResult =
       )
     )
   );
+
 }
 
 else {
@@ -1105,10 +1114,13 @@ await sendToVestaboard(payload);
 
 writeFileSync(
   "data/current-board.json",
-  JSON.stringify({
-    updatedAt: new Date().toISOString(),
-    characters: payload,
-  }, null, 2) + "\n",
+
+JSON.stringify({
+  updatedAt: new Date().toISOString(),
+  characters: payload,
+  quotePreviewBackground,
+}, null, 2) + "\n",
+
   "utf8"
 );
 }
