@@ -1210,8 +1210,10 @@ const isReducedUpdatePeriod =
   totalMinutes >= 19 * 60 &&
   totalMinutes < 22 * 60 + 30;
 
+
 const isQuarterHour =
-  minute % 15 === 0;
+  minute % 15 <= 3;
+
 
 
 if (
