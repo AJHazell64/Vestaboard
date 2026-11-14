@@ -884,8 +884,28 @@ if (
       quoteQueue = [];
     }
 
-    const quoteResult =
-      await getQuote(quoteQueue);
+
+let excludedQuotes = [];
+
+try {
+  excludedQuotes = JSON.parse(
+    runGitHubCommand([
+      "variable",
+      "get",
+      "EXCLUDED_QUOTES",
+    ]) || "[]"
+  );
+
+  if (!Array.isArray(excludedQuotes)) {
+    excludedQuotes = [];
+  }
+} catch {
+  excludedQuotes = [];
+}
+
+const quoteResult =
+  await getQuote(quoteQueue, excludedQuotes);
+
 
     quoteData = {
       hour: currentHour,
