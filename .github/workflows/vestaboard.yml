@@ -203,6 +203,77 @@ jobs:
                 continue;
               }
             
+              if (text.toLowerCase() === "remove") {
+                const repo = process.env.GITHUB_REPOSITORY;
+              
+                const getVariable = (name) => {
+                  try {
+                    return execFileSync(
+                      "gh",
+                      ["variable", "get", name, "--repo", repo],
+                      { encoding: "utf8", env: process.env }
+                    ).trim();
+                  } catch {
+                    return "";
+                  }
+                };
+              
+                const currentQuote = JSON.parse(
+                  getVariable("LAST_DAY_QUOTE") || "null"
+                )?.quote;
+              
+                if (!currentQuote) {
+                  await sendTelegramReply(
+                    message.chat.id,
+                    "❌ No current quote to remove"
+                  );
+                  continue;
+                }
+              
+                let excludedQuotes;
+              
+                try {
+                  excludedQuotes = JSON.parse(
+                    getVariable("EXCLUDED_QUOTES") || "[]"
+                  );
+              
+                  if (!Array.isArray(excludedQuotes)) {
+                    throw new Error("Invalid exclusion list");
+                  }
+                } catch {
+                  await sendTelegramReply(
+                    message.chat.id,
+                    "❌ Exclusion list could not be read"
+                  );
+                  continue;
+                }
+              
+                if (!excludedQuotes.some(
+                  (quote) => cleanQuote(quote) === cleanQuote(currentQuote)
+                )) {
+                  excludedQuotes.push(currentQuote);
+                }
+              
+                execFileSync("gh", [
+                  "variable", "set", "EXCLUDED_QUOTES",
+                  "--body", JSON.stringify(excludedQuotes),
+                  "--repo", repo,
+                ], { env: process.env });
+              
+                execFileSync("gh", [
+                  "variable", "set", "NEXT_QUOTE_REQUESTED",
+                  "--body", "true",
+                  "--repo", repo,
+                ], { env: process.env });
+              
+                await sendTelegramReply(
+                  message.chat.id,
+                  `✅ Quote permanently removed:\n${currentQuote}\nReplacement requested`
+                );
+              
+                continue;
+              }
+
             const modeMatch = text.match(
               /^(morning|day|evening|night)(\d+)$/i
             );
