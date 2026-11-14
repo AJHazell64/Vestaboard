@@ -561,6 +561,28 @@ jobs:
           GH_PAT: ${{ secrets.GH_PAT }}
           LAST_BETTY_RANGE_MILES: ${{ vars.LAST_BETTY_RANGE_MILES }}
 
+
+      - name: Publish current board preview
+        run: |
+          if [ ! -f data/current-board.json ]; then
+            echo "No new board display to publish"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -f data/current-board.json
+
+          if git diff --cached --quiet; then
+            echo "Board preview unchanged"
+            exit 0
+          fi
+
+          git commit -m "Update Vestaboard preview"
+          git push
+
+
       - name: Save replacement Tesla refresh token
         if: ${{ success() && hashFiles('tesla-refresh-token.txt') != '' }}
         run: |
