@@ -17,6 +17,16 @@ function gh(args) {
   }).trim();
 }
 
+function git(args) {
+  return execFileSync("git", args, {
+    encoding: "utf8",
+    env: process.env,
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
+}
+
+
+
 function getVariable(name) {
   try {
     return gh([
