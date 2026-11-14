@@ -345,6 +345,34 @@ jobs:
               continue;
             }
 
+            
+            if (text.toLowerCase() === "reset") {
+              const repo = process.env.GITHUB_REPOSITORY;
+
+              execFileSync(
+                "gh",
+                [
+                  "variable",
+                  "set",
+                  "QUOTE_QUEUE",
+                  "--body",
+                  JSON.stringify({
+                    version: 2,
+                    shown: [],
+                  }),
+                  "--repo",
+                  repo,
+                ],
+                { env: process.env }
+              );
+
+              await sendTelegramReply(
+                message.chat.id,
+                "✅ Quote history reset. All active quotes are available again."
+              );
+
+              continue;
+            }
 
             
             const modeMatch = text.match(
