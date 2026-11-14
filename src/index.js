@@ -928,14 +928,17 @@ const nextQuoteRequested =
   ]) === "true";
 
 
+
+const specialDayQuote = getSpecialDayQuote();
 const christmasCountdown = getChristmasCountdown();
 
-if (christmasCountdown) {
+if (specialDayQuote || christmasCountdown) {
   quoteData = {
     hour: currentHour,
-    quote: christmasCountdown,
+    quote: specialDayQuote || christmasCountdown,
   };
 } else if (
+
   !quoteData ||
   quoteData.hour !== currentHour ||
   nextQuoteRequested
