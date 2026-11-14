@@ -34,8 +34,9 @@ jobs:
             canFitQuote,
             cleanQuote,
             FALLBACK_QUOTES,
+            getValidFallbackQuotes,
           } from "./data/quotes.js";
-
+          
           async function sendTelegramReply(chatId, text) {
             const response = await fetch(
               `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
@@ -274,6 +275,78 @@ jobs:
                 continue;
               }
 
+            
+            if (text.toLowerCase() === "status") {
+              const repo = process.env.GITHUB_REPOSITORY;
+            
+              const getVariable = (name) => {
+                try {
+                  return execFileSync(
+                    "gh",
+                    ["variable", "get", name, "--repo", repo],
+                    { encoding: "utf8", env: process.env }
+                  ).trim();
+                } catch {
+                  return "";
+                }
+              };
+            
+              try {
+                const queue = JSON.parse(
+                  getVariable("QUOTE_QUEUE") || "{}"
+                );
+                const excluded = JSON.parse(
+                  getVariable("EXCLUDED_QUOTES") || "[]"
+                );
+            
+                if (!Array.isArray(excluded)) {
+                  throw new Error("Invalid exclusion list");
+                }
+            
+                const allQuotes = getValidFallbackQuotes();
+                const excludedSet = new Set(
+                  excluded.map(cleanQuote)
+                );
+                const activeQuotes = allQuotes.filter(
+                  (quote) => !excludedSet.has(cleanQuote(quote))
+                );
+                const activeSet = new Set(
+                  activeQuotes.map(cleanQuote)
+                );
+                const shown = new Set(
+                  queue.version === 2 && Array.isArray(queue.shown)
+                    ? queue.shown.map(cleanQuote)
+                    : []
+                );
+            
+                const total = activeQuotes.length;
+                const used = [...shown].filter(
+                  (quote) => activeSet.has(quote)
+                ).length;
+                const remaining = total - used;
+                const removed = allQuotes.length - total;
+            
+                await sendTelegramReply(
+                  message.chat.id,
+                  `📊 Quote Status\n\n` +
+                  `Total active: ${total}\n` +
+                  `Used this cycle: ${used}\n` +
+                  `Remaining: ${remaining}\n` +
+                  `Permanently removed: ${removed}`
+                );
+              } catch (error) {
+                console.error("Status command failed:", error);
+                await sendTelegramReply(
+                  message.chat.id,
+                  "❌ Unable to read quote status"
+                );
+              }
+            
+              continue;
+            }
+
+
+            
             const modeMatch = text.match(
               /^(morning|day|evening|night)(\d+)$/i
             );
